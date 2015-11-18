@@ -1,0 +1,200 @@
+\documentclass[pdftex]{beamer}
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{The Scheduler}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+\begin{frame}[fragile]
+  \frametitle{The Scheduler}
+  \begin{itemize}
+  \item Decides which thread gets to run
+  \item The \emph{thread} is the scheduable entity
+  \item Chooses a processor/core
+  \item Can be overridden by \verb+cpuset+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Process States}
+  \begin{description}
+  \item[NEW] Being created
+  \item[RUNNABLE] Can run
+  \item[SLEEPING] Awaiting some event
+  \item[STOPPED] Debugging
+  \item[ZOMBIE] Process of dying
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Scheduling Classes}
+  \begin{description}
+  \item[ITHD] interrupt thread
+  \item[REALTIME] real-time user
+  \item[KERN] kernel threads
+  \item[TIMESHARE] normal user programs
+  \item[IDLE] run when nothing else does
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Scheduler Framework}
+  \begin{itemize}
+  \item Schedulers have kernel API
+  \item \Verb|SCHED_4BSD| and \Verb|SCHED_ULE|
+  \item High level scheduler picks the CPU via the runq
+  \item Low level scheduler picks the thread to run
+  \item \Verb|sched_pickcpu| selects the CPU
+  \item \Verb|mi_switch| Entry to a forced context switch
+  \item \Verb|sched_switch| scheduler API
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sched Provider}
+  \begin{description}
+  \item[on-cpu] Thread moves on core
+  \item[off-cpu] Thread moves off core
+  \item[remain-cpu] Thread remains on core
+  \item[change-pri] Priority changed
+  \item[fbt:kernel:cpu\_idle:entry] Thread went idle
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dummy Probes (Do Not Use)}
+  \begin{itemize}
+  \item Probes purely for D script compatibility
+  \item These never fire
+  \item \verb+cpucaps-sleep+
+  \item \verb+cpucaps-wakeup+
+  \item \verb+schedctl-nopreempt+
+  \item \verb+schedctl-preempt+
+  \item \verb+schedctl-yield+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Idle vs. Running}
+  \begin{itemize}
+  \item \verb+cpudists+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Who's sleeping?}
+\begin{verbatim}
+dtrace -n 'sched:::sleep { @prog[execname] = count() }
+dtrace: description 'sched:::sleep ' matched 1 probe
+^C
+cron                                      1
+devd                                      1
+pagezero                                  1
+sendmail                                  1
+sudo                                      1
+nfsd                                          2
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Idle vs. Active}
+\begin{verbatim}
+sudo ./cpudist
+Ctrl-C
+  KERNEL 
+   value  --------- Distribution --------- count    
+   256 |                                     0        
+   512 |                                     3        
+  1024 |@@@@@@@@                             58       
+  2048 |@@@@@@@@@@@@@                        93       
+  4096 |@@@@@@@@@@@@@@@@                     120      
+  8192 |@@                                   17       
+ 16384 |                                     1        
+ 32768 |@                                    4        
+ 65536 |                                     1        
+131072 |                                     0        
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A look inside cpudist}
+  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Changing Priorities}
+\begin{lstlisting}
+dtrace -n 'sched:::change-pri { printf("%s %d %d", execname, curlwpsinfo->pr_pri, arg2); }' | head
+dtrace: description 'sched:::change-pri ' matched 1 probe
+CPU     ID                    FUNCTION:NAME
+  1  49443                      :change-pri csh 176 152
+  1  49443                      :change-pri ls 176 120
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Multi-core World}
+  \begin{itemize}
+  \item All large systems are multi-core
+  \item Scheduling on multi-core is difficult
+  \item Some systems resort to static allocation
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Are threads migrating?}
+  \begin{itemize}
+  \item Watching threads with \verb+cpuwalk.d+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Context Switching}
+  \begin{itemize}
+  \item Processes all believe they own the computer
+  \item Context switching maintains this fiction
+  \item Requires saving and restoring state
+  \item Common measure of operating system performance
+  \item \verb+cswstat.d+ measures overall context switching
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A look inside cswstat.d}
+  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Scheduler Lab Exercises}
+  \begin{itemize}
+  \item Write a one-liner to show processes waking up
+  \item Extend wake up one-liner to include stack tracing
+  \item Extend priority one-liner to include stack tracing
+  \item Add periodic output to \verb+cpuwalk.d+
+  \item Track context switching for a single process
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

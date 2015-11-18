@@ -1,0 +1,129 @@
+\documentclass[pdftex]{beamer}
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Locking}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \frametitle{Locking Overview}
+  \begin{itemize}
+  \item Multiple hardware threads
+  \item Protection for shared state
+  \item Locking required for MP and multi-core systems
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Types of Locks}
+  \begin{description}
+  \item[mutex] Most basic lock
+  \item[r/w lock] Reader/writer lock
+  \item[sx lock] Shared/exclusive lock
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Who is locking?}
+\begin{verbatim}
+dtrace -n 'lockstat::: { @locks[execname] = count();} '
+  nfsd                                                             16
+  sudo                                                             35
+  sendmail                                                         48
+  fdc0                                                             56
+  syncer                                                           68
+  bufdaemon                                                       272
+  sshd                                                            293
+  kernel                                                          320
+  vmdaemon                                                        670
+...
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lock Provider}
+  \begin{itemize}
+  \item All lock types have similar probes
+  \item 29 total probes in all
+  \end{itemize}
+  \begin{description}
+  \item[acquire] Code grabbed the lock
+  \item[block] Another thread was blocked
+  \item[spin] Thread is spinning on the lock
+  \item[release] Lock is released
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lock Provider Arguments}
+  \begin{description}
+  \item[arg0] Address of lock object
+  \item[arg1] Lock time or spin count
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sum kernel adaptive lock block time by process name}
+\begin{verbatim}
+dtrace -n 'lockstat:::adaptive-block { @[execname] = sum(arg1); }'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Summarize adaptive lock block time distribution by process name}
+\begin{verbatim}
+dtrace -n 'lockstat:::adaptive-block { @[execname] = quantize(arg1); }'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sum kernel adaptive lock block time by kernel stack trace}
+\begin{verbatim}
+dtrace -n 'lockstat:::adaptive-block { @[stack()] = sum(arg1); }'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sum kernel adaptive lock block time by lock name}
+\begin{verbatim}
+dtrace -n 'lockstat:::adaptive-block { @[arg0] = sum(arg1); } END { printa("%40a %@16d ns\n", @); }'
+\end{verbatim}  
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Sum kernel adaptive lock block time by calling function}
+\begin{verbatim}
+dtrace -n 'lockstat:::adaptive-block { @[caller] = sum(arg1); } END { printa("%40a %@16d ns\n", @); }'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Locking Lab Exercises}
+  \begin{itemize}
+  \item Adapt each on-liner to one other lock type
+  \item Create a one-liner to track lock acquisition
+  \item Track spin locks
+  \item Write a on-liner to show where locks are acquired
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

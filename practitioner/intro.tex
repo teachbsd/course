@@ -1,0 +1,216 @@
+\documentclass[pdftex]{beamer}
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Introduction and Tutorial Overview}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Objectives}
+  \begin{itemize}
+  \item Understand key kernel concepts
+  \item Become comfortable with DTrace
+    \begin{itemize}
+    \item Terminology
+    \item Basic Usage
+    \item Advanced Scripting
+    \end{itemize}
+  \item Explore on your own
+  \end{itemize}
+\end{frame}
+
+%
+% This interactive whiteboarding exercise should take five minutes or less:
+% ask about places where OSes are used, what services they provide, what other
+% problems can think of.  Where have OSes let them down?  What is in an OS?
+%
+
+\begin{frame}
+  \begin{huge}
+  \begin{center}
+    What is an operating system?
+  \end{center}
+  \end{huge}
+
+  \bigskip
+
+  \begin{center}
+  \begin{tiny}
+    Whiteboarding exercise
+  \end{tiny}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is an operating system?}
+
+  \begin{large}
+  \begin{center}
+    [An OS is] low-level software that supports \\
+    a computer's basic functions, such as \\
+    scheduling tasks and controlling peripherals. \\
+  \smallskip
+  \small{- Google hive mind}
+  \end{center}
+  \end{large}
+\end{frame}
+
+\begin{frame}
+  \frametitle{General-purpose operating systems}
+
+  ...  are for general-purpose computers
+
+  \begin{itemize}
+    \item Servers, workstations, mobile devices
+    \item Run `applications' -- i.e., software unknown at design time
+    \item Abstract the hardware, provide `class libraries'
+    \item E.g., Windows, Mac OS X, Android, iOS, Linux, FreeBSD, ...
+  \end{itemize}
+
+  \pause
+
+  \medskip
+
+  \begin{description}
+    \item[\textbf{Userspace}]
+
+      \smallskip
+
+      Local and remote shells, management tools, daemons
+
+      \smallskip
+
+      Run-time linker, system libraries, tracing facilities
+
+    \pause
+
+    \item[] {\tiny - - - - \textit{system-call interface} - - - -}
+
+    \pause
+
+    \item[\textbf{Kernel}]
+
+      System calls, hypercalls, remote procedure call (RPC)
+
+      \smallskip
+
+      Processes, filesystems, IPC, sockets, management
+
+      \smallskip
+
+      Drivers, packets/blocks, protocols, tracing, virtualisation
+
+      \smallskip
+
+      VM, malloc, linker, scheduler, threads, timers, tasks, locks
+
+  \end{description}
+
+  \pause
+
+  \medskip
+
+  Continuing disagreement on whether distributed-filesystem servers and
+  window systems `belong' in userspace or the kernel
+\end{frame}
+
+\begin{frame}
+  \frametitle{What does an operating system do?}
+
+  \begin{itemize}
+    \item Key hardware-software surface (cf. compilers)
+    \item System management: bootstrap, shutdown, watchdogs
+    \item Low-level abstractions and services
+    \begin{itemize}
+      \item Programming: processes, threads, IPC, program model
+      \item Resource sharing: scheduling, multiplexing, virtualisation
+      \item I/O: device drivers, local/distributed filesystems, network stack
+      \item Security: authentication, encryption, permissions, labels, audit
+      \item Local or remote access: console, window system, SSH
+    \end{itemize}
+    \item Libraries: math, protocols, RPC, cryptography, UI, multimedia
+    \item Other stuff: system log, debugging, profiling, tracing
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why study operating systems?}
+
+  \bigskip
+
+  The OS plays a central role in \textbf{whole-system design}  when building
+  efficient, effective, and secure systems:
+
+  \bigskip
+
+  \begin{itemize}
+    \item Key interface between hardware and software
+    \item Strong influence on whole-system performance
+    \item Critical foundation for computer security
+    \item Exciting programming techniques, algorithms, problems
+    \begin{itemize}
+      \item Virtual memory; network stacks; filesystems; runtime linkers; ...
+    \end{itemize}
+    \item Co-evolves with platforms, applications, users
+    \item Multiple active research communities
+    \item Reusable techniques for building complex systems
+    \item Boatloads of fun (best text adventure ever)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{FreeBSD}
+  \begin{itemize}
+  \item Open Source
+  \item Unix
+  \item Posix
+  \item Complete System
+  \item 20 years of history
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview}
+  \begin{itemize}
+  \item Today
+    \begin{itemize}
+    \item Introduction to DTrace
+    \item Processes and the Process Model
+    \item Scheduler
+    \item Locking
+    \end{itemize}
+    \begin{itemize}
+    \item Tomorrow
+      \begin{itemize}
+      \item Networking
+      \item Filesystems
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

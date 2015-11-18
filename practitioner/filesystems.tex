@@ -1,0 +1,125 @@
+\documentclass[pdftex]{beamer}
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Filesystems}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \frametitle{File Systems Overview}
+  \begin{description}
+  \item[naming] Translating human names to usable objects
+  \item[storage] Store and retrieve blocks of data
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Naming}
+  \begin{itemize}
+  \item Translate a human name to something
+  \item \verb+nami+ is the main interface
+  \item All names reside in the name chache
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Name Lookup}
+  \begin{itemize}
+  \item What names are being looked up?
+  \end{itemize}
+\begin{verbatim}
+dtrace -n 'vfs:namei:lookup:entry { printf("%s", stringof(arg1));}'
+CPU     ID                    FUNCTION:NAME
+  2  27847                     lookup:entry /bin/ls
+  2  27847                     lookup:entry /libexec/ld-elf.so.1
+  2  27847                     lookup:entry /etc
+  2  27847                     lookup:entry /etc/libmap.conf
+  2  27847                     lookup:entry /etc/libmap.conf
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Name Cache}
+  \begin{itemize}
+  \item Speeds up searching
+  \item Maintains positive and negative results
+  \item Invalidation on changes in directories
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Who is missing the cache?}
+\begin{verbatim}
+dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Name Cache Module}
+  \begin{description}
+  \item[enter] Add a positive entry
+  \item[enter\_negative] Add a negative entry
+  \item[lookup:hit] Name found in positive cache
+  \item[lookup:hit-negative] Name found in negatie cache
+  \item[lookup:miss] Name not found in cache
+  \item[purge] Remove positive entry
+  \item[purge\_negative] Remove negative entry
+  \item[zap] Remove positive entry with or without vnode
+  \item[zap\_negative] Remove negative entry with or without vnode
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Adding negative entries}
+\begin{verbatim}
+ dtrace -n 'vfs:namecache:enter_negative: { printf("%s", stringof(arg1)); }'
+\end{verbatim}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Name Caching Lab Exercises}
+  \begin{itemize}
+  \item Create a one liner to count zaps vs. purges
+  \item Write a script to track all namecaching statistics
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{VNODE Operations}
+  \begin{itemize}
+  \item After a path or name is looked up
+  \item Do something with a vnode
+  \item \verb|open|, \verb|close|, \verb|read|, \verb|write|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{VFS Lab Exercises}
+  \begin{itemize}
+  \item Compare VFS reads with the read system call
+  \item Compare VFS writes with the write system call
+  \item Track all VOP operations and count their frequency
+  \end{itemize}
+\end{frame}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

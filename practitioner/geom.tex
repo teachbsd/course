@@ -1,0 +1,88 @@
+\documentclass[pdftex]{beamer}
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Beneath the Filesystem}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \frametitle{GEOM Oveview}
+  \begin{itemize}
+  \item Framework for trasnforming storage requests
+  \item Object Oriented
+  \item Shuttles I/O requests between filesystems and devices
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{GEOM Layers}
+  \begin{description}
+  \item[MBR] Master Boot Record
+  \item[BSD] BSD Slice
+  \item[ELI] Encryption
+  \item[MIRROR] Disk mirroring
+  \item[JOURNAL] Journaling
+  \item[RAID] Software RAID
+\end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Visual Example}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Performing I/O}
+sudo dtrace -n ::g_io\*:entry  
+
+This gets us the most likely 8 routines we care about.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Read Bandwidth}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Write Bandwidth}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Read Latency}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Write Latency}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Layering Costs}
+  
+\end{frame}
+
+% Look at using the consumer
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
