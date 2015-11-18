@@ -27,6 +27,9 @@ tell the difference between the two.
 These courses are applicable to both *University students* and
 *practitioners* of software engineering.
 
+The preferred text for the course is
+[The Design and Implementation of the FreeBSD Operating System, 2nd Ed.](http://www.informit.com/store/design-and-implementation-of-the-freebsd-operating-9780321968975)
+
 The material contained herein is shared under a permissive,
 [open source license](LICENSE.md) with the intent that it is widely
 adopted.
