@@ -1,4 +1,4 @@
-# Teaching Operating Systems with Observability and Tracing #
+# Teaching Operating Systems with Tracing #
 
 ## A set of courses for students and software practitioners ##
 
