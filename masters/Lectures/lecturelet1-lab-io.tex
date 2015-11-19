@@ -1,0 +1,342 @@
+% Included from both -slides and -handout versions.
+
+\mode<presentation>
+{
+  \usetheme{default}
+  \useoutertheme{infolines}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{hyperref}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false}
+
+\title{L41: Lab 1 - I/O}
+\author{Dr Robert N. M. Watson}
+\date{20 October 2015}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}
+  \frametitle{L41: Lab 1 - I/O}
+
+  \begin{itemize}
+    \item Introduce the BBB and DTrace
+    \item Explore user-kernel interactions via syscalls and traps
+    \item Learn a bit about POSIX I/O
+    \item Measure the probe effect
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The benchmark}
+
+  \begin{scriptsize}
+\begin{verbatim}
+[guest@beaglebone ~/io]$ ./io-static 
+io-static -c|-r|-w [-Bdqsv] [-b blocksize] [-t totalsize] path
+
+Modes (pick one):
+    -c              'create mode': create benchmark data file
+    -r              'read mode': read() benchmark
+    -w              'write mode': write() benchmark
+
+Optional flags:
+    -B              Run in bare mode: no preparatory activities
+    -d              Set O_DIRECT flag to bypass buffer cache
+    -q              Just run the benchmark, don't print stuff out
+    -s              Call fsync() on the file descriptor when complete
+    -v              Provide a verbose benchmark description
+    -b blocksize    Specify a block size (default: 16384)
+    -t totalsize    Specify total I/O size (default: 16777216)
+\end{verbatim}
+  \end{scriptsize}
+
+  \begin{itemize}
+    \item Simple, bespoke I/O benchmark: \texttt{read()} or \texttt{write()}
+    \item Statically or dynamically linked
+    \item Adjust buffer sizes, etc.
+    \item Various output modes.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The benchmark (2)}
+
+  \begin{itemize}
+    \item Three operational modes:
+    \begin{description}
+      \item[Create (\texttt{-c})] Create a new benchmark data file
+      \item[Read (\texttt{-r})] Perform \texttt{read()}s against data file
+      \item[Write (\texttt{-w})] Perform \texttt{write()}s against data file
+    \end{description}
+    \pause
+    \item Adjust I/O parameters:
+    \begin{description}
+      \item[Block size (\texttt{-b})] Block size used for each I/O
+      \item[Total size (\texttt{-t})] Total size across all I/Os
+      \item[Direct (\texttt{-d})] Use direct I/O (bypass buffer cache)
+      \item[Sync (\texttt{-s})] Perform \texttt{fsycnc()} after I/O loop
+      \item[Bare (\texttt{-B})] Don't synchronise cache (etc) on start
+	(whole-program testing)
+    \end{description}
+    \pause
+    \item Output flags:
+    \begin{description}
+      \item[Quiet (\texttt{-q})] Suppress all output (whole-program tracing)
+      \item[Verbose (\texttt{-v})] Verbose output (interactive testing)
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The benchmark (3)}
+
+  \begin{scriptsize}
+\begin{verbatim}
+[guest@beaglebone ~/io]$ ./io-static -v -d -w /data/iofile 
+Benchmark configuration:
+  blocksize: 16384
+  totalsize: 16777216
+  blockcount: 1024
+  operation: write
+  path: /data/iofile
+  time: 58.502746875
+280.06 KBytes/sec
+\end{verbatim}
+  \end{scriptsize}
+
+  \begin{itemize}
+    \item Use verbose output
+    \item Bypass the buffer cache
+    \item Write to the previously created file \url{/data/iofile}
+    \item Use default buffer size (16K) and total I/O size (16M)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Exploratory questions}
+
+  \begin{itemize}
+    \item Baseline benchmark performance analysis:
+    \begin{itemize}
+      \item How do \texttt{read()} and \texttt{write()} performance compare?
+      \item What is the performance impact of the buffer cache? \\
+	Consider both \texttt{-d} and \texttt{-s}.
+      \item What proportion of time is spent in userspace vs. the kernel?
+      \item How many times are system calls invoked during the I/O loop?
+      \item What is the role of traps in execution of the I/O loop?
+      \item How does work performed in just the I/O loop compare with
+	whole-program behaviour?
+    \end{itemize}
+
+    \pause
+    \bigskip
+
+    \item Probe effect and measurement decisions
+    \begin{itemize}
+      \item How does performance change if you insert system-call or trap
+	probes in the I/O loop?
+      \item What sources of variance may be affecting benchmark performance,
+	and how can we measure them?
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Experimental questions for the lab report}
+
+  \begin{itemize}
+    \item With respect to a configuration reading from a fixed-size file
+      through the buffer cache:
+    \begin{enumerate}
+      \item How does changing the I/O buffer size affect I/O-loop performance?
+      \item How does static vs. dynamic linking affect whole-program
+	performance?
+      \item At what file-size threshold does any performance difference
+	between static and dynamic linking fall below 5\%? 1\%?
+    \end{enumerate}
+
+    \pause
+    \bigskip
+
+    \item Run the benchmark to gather initial measurements
+    \item Explore through system-call/trap tracing and profiling
+    \item Use various configurations (e.g., I/O on \url{/dev/zero}) to explore
+      kernel code-path behaviour
+  \end{itemize}
+\end{frame}
+
+\section{DTrace}
+
+\begin{frame}[fragile]
+  \frametitle{DTrace scripts}
+
+  \begin{itemize}
+    \item Human-facing C-like language
+    \item One or more \{\textit{probe name}, \textit{predicate},
+      \textit{action}\} tuples
+    \item Expression limited to control side effects (e.g., no loops)
+    \item Specified on command line or via a \texttt{.d} file
+  \end{itemize}
+
+  \pause
+  \smallskip
+
+  \begin{small}
+\begin{verbatim}
+fbt::malloc:entry /execname == "csh"/ { trace(arg0); }
+\end{verbatim}
+  \end{small}
+
+  \smallskip
+
+  \begin{description}
+    \item[probe name] Identifies the probe(s) to instrument; wildcards
+      allowed; identifies the \textit{provider} and a provider-specific
+      \textit{probe name}
+    \item[predicate] Filters cases where action will execute
+    \item[action] Describes tracing operations
+  \end{description}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Some kernel DTrace providers in FreeBSD}
+
+  \begin{center}
+  \begin{small}
+  \begin{tabular}{ll}
+    \hline
+      \textbf{Provider} & \textbf{Description} \\
+    \hline
+      \texttt{callout\_execute} & Timer-driven callouts \\
+      \texttt{dtmalloc} & Kernel \texttt{malloc()}/\texttt{free()} \\
+      \textbf{\texttt{dtrace}} & DTrace script events (\texttt{BEGIN},
+	\texttt{END}) \\
+      \textbf{\texttt{fbt}} & Function Boundary Tracing \\
+      \textbf{\texttt{io}} & Block I/O \\
+      \texttt{ip}, \texttt{udp}, \texttt{tcp}, \texttt{sctp}  & TCP/IP \\
+      \texttt{lockstat} & Locking \\
+      \textbf{\texttt{proc}, \texttt{sched}} & Kernel process/scheduling \\
+      \texttt{profile} & Profiling timers \\
+      \textbf{\texttt{syscall}} & System call entry/return \\
+      \textbf{\texttt{vfs}} & Virtual filesystem \\
+    \hline
+  \end{tabular}
+  \end{small}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aggregations}
+
+  \begin{center}
+    \begin{small}
+      \begin{tabular}{ll}
+        \hline
+        Aggregation & Description \\
+        \hline
+	\texttt{count()} & Number of times called \\
+	\texttt{sum()} & Sum of arguments \\
+	\texttt{avg()} & Average of arguments \\
+	\texttt{min()} & Minimum of arguments \\
+	\texttt{max()} & Maximum of arguments \\
+	\texttt{stddev()} & Standard deviation ofnts \\
+	\texttt{lquantize()} & Linear frequency distribution (histogram) \\
+	\texttt{quantize()} & Log frequency distribution (histogram) \\
+        \hline
+      \end{tabular}
+    \end{small}
+  \end{center}
+  \begin{itemize}
+    \item Often we want summaries of events, not detailed traces
+    \item DTrace allows early, efficient \textit{reduction} using aggregations
+    \item Scalable multicore implementations (i.e., commutative)
+    \item \texttt{@variable = function()}
+    \item \texttt{printa()} to print
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Counting kernel \texttt{read()} system calls}
+
+  \begin{small}
+\begin{verbatim}
+[guest@beaglebone ~/io]$ ./io-static -q -r /data/iofile
+\end{verbatim}
+  \end{small}
+
+\smallskip
+
+  \begin{small}
+\begin{verbatim}
+root@beaglebone:/data/io # dtrace -n
+  'syscall::read:entry
+  /execname=="io-static"/
+  {@reads = count(); }'
+\end{verbatim}
+  \end{small}
+
+  \begin{description}
+    \item[Probe] Trace the \texttt{read} system call
+    \item[Predicate] Limit actions to processes executing \texttt{io-static}
+    \item[Action] Count the number of probe fires
+  \end{description}
+
+  \pause
+
+  \begin{small}
+\begin{verbatim}
+dtrace: description 'syscall::read:entry ' matched 1 probe
+dtrace: buffer size lowered to 2m
+dtrace: aggregation size lowered to 2m
+^C
+
+             1024
+\end{verbatim}
+  \end{small}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A few cautions}
+
+  Copy key scripts and data files to/from your workstation
+
+  \begin{itemize}
+    \item The SD cards seem a bit fragile during poweroff -- make sure you
+      shut down safely using the Lab Setup instructions
+    \item We have spare imaged SD cards if you need them
+    \item We may replace your SD cards for future labs
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A few other useful things}
+
+  \begin{itemize}
+    \item Work in pairs for the lab (reports must be written separately)
+    \item Log in as \texttt{guest} on the console to set up an SSH key
+    \item Otherwise, log in as \texttt{guest} via SSH
+    \item Copy the lab bundle (see handout) to the BBB, and test
+    \item In one terminal, \texttt{su} to \texttt{root} to run \texttt{dtrace}
+    \item Then you will likely want multiple SSH sessions open
+    \item The kernel source code is in \url{/usr/src/sys}
+    \item Start with something simple -- e.g., DTrace \texttt{hello world}
+    \item Do not hesitate to ask for help if you need a hand!
+  \end{itemize}
+\end{frame}
+
+\end{document}
