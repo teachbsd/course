@@ -4,5 +4,7 @@
 To build the lectures use
 
 ```
-make
+latexmk -pdf filename.tex
 ```
+
+or use the Makefile
