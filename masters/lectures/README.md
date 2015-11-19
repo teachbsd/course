@@ -1,7 +1,7 @@
 # Teaching Operating Systems with Tracing #
 ## Lectures ##
 
-To build the handouts use
+To build the lectures use
 
 ```
 make
