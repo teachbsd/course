@@ -162,6 +162,23 @@ CPU     ID                    FUNCTION:NAME
   \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile,fragile]
+  \frametitle{Probe Arguments}
+  \begin{itemize}
+  \item Use verbose (-v) mode to find probe arguments
+  \item \Verb+sudo dtrace -lv -f syscall:freebsd:read+
+  \end{itemize}
+\begin{verbatim}
+ ID   PROVIDER            MODULE                          FUNCTION NAME
+57177    syscall           freebsd                              read entry
+
+	Argument Types
+		args[0]: int
+		args[1]: void *
+		args[2]: size_t
+\end{verbatim}
+\end{frame}
+
 \begin{frame}
   \frametitle{The D Language}
   \begin{itemize}
