@@ -74,7 +74,7 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
   \item[enter] Add a positive entry
   \item[enter\_negative] Add a negative entry
   \item[lookup:hit] Name found in positive cache
-  \item[lookup:hit-negative] Name found in negatie cache
+  \item[lookup:hit-negative] Name found in negative cache
   \item[lookup:miss] Name not found in cache
   \item[purge] Remove positive entry
   \item[purge\_negative] Remove negative entry
