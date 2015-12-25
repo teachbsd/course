@@ -8,7 +8,7 @@ inner workings of the operating system in order to build, and maintain
 high performance computing platforms.
 
 To build the entire set of slides into a single, ordered, presentation
-us the following command:
+use the following command:
 
 
 ```
