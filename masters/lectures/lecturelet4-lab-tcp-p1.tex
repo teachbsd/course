@@ -22,7 +22,7 @@
 
 \title{L41: Lab 4 - The TCP State Machine}
 \author{Dr Robert N. M. Watson}
-\date{25 January 2016}
+\date{29 January 2016}
 
 \begin{frame}
   \titlepage
@@ -35,8 +35,10 @@
 
   \begin{itemize}
     \item The TCP state machine
-    \item TCP-socket mode for IPC benchmark mode
+    \item Setting the MTU, IPFW, and DUMMYNET
+    \item TCP mode for the IPC benchmark
     \item DTrace probes of interest
+    \item Experimental and exploratory questiond
   \end{itemize}
 \end{frame}
 
@@ -102,7 +104,10 @@ September 1981                             Transmission Control Protocol
   \end{Tiny}
 
     \column{0.45\textwidth}
+
     \bigskip
+    \pause
+
     \begin{itemize}
       \item V. Cerf, K. Dalal, and C. Sunshine, \textit{Transmission Control
 	Protocol (version 1)}, INWG General Note \#72, December 1974.
@@ -124,18 +129,37 @@ September 1981                             Transmission Control Protocol
       \end{center}
 
     \column{0.52\textwidth}
+
+      \pause
+
       \begin{itemize}
-	\item Reliable, ordered, byte-stream transport protocol over IP
-	%\item Connections identified by unique IP-port 4-tuple
-	\item Three-way handshake: SYN~/ SYN-ACK~/ ACK (mostly!)
-        \item Flow control via advertised window size in ACKs
-	\item Congestion control via packet loss and ECN (`fairness')
+	\item Network may delay, (reorder), drop, corrupt packets
 
 	\pause
 
-	\item Network may delay, (reorder), drop, corrupt packets
+	\item TCP: Reliable, ordered, stream transport protocol over IP
+
+	%\item Connections identified by unique IP-port 4-tuple
+
+	\pause
+
+	\item Three-way handshake: SYN~/ SYN-ACK~/ ACK (mostly!)
+
+	\pause
+
 	\item Sequence numbers ACK'd; data retransmitted on loss
+
+	\pause
+
 	\item Round-Trip Time (RTT) measured to time out loss
+
+	\pause
+
+        \item Flow control via advertised window size in ACKs
+
+	\pause
+
+	\item Congestion control (`fairness') via packet loss and ECN
 
 	%\pause
 
@@ -149,12 +173,15 @@ September 1981                             Transmission Control Protocol
   \frametitle{Loopback interface, IPFW, and DUMMYNET}
 
   \begin{itemize}
+    \item Network-stack features to configure \textbf{once per boot}
+
+    \pause
+
     \item Loopback interface
     \begin{itemize}
       \item Simulated local network interface: packets ``loop back''
       \item Interface name \texttt{lo0}
       \item Assigned IPv4 address 127.0.0.1
-      \item Configure the loopback MTU once per boot.
     \end{itemize}
 
     \pause
@@ -164,18 +191,17 @@ September 1981                             Transmission Control Protocol
       \item Numbered rules classify packets and perform actions
       \item Actions include accept, reject, inject into DUMMYNET ...
       \item We will match lab flows using the TCP port number 10,141
-      \item Configure \textbf{once per boot} (and with care!)
     \end{itemize}
 
+    \medskip
     \pause
 
+    \item Configure (and reconfigure) \textbf{for each experiment}
     \item DUMMYNET - link simulation tool by Rizzo, et al.
     \begin{itemize}
       \item Widely used in network research
       \item Impose simulated network conditions -- delay, bandwidth, loss, ...
-      \item Configure and reconfigure as needed for experiments
     \end{itemize}
-    \item Instructions in lab assignment
   \end{itemize}
 \end{frame}
 
