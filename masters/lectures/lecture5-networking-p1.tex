@@ -23,7 +23,7 @@
 %\institute{University of Cambridge}
 %\author{George V. Neville-Neil}
 \author{Dr Robert N. M. Watson}
-\date{18 January 2016}
+\date{19 January 2016}
 
 \begin{frame}
   \titlepage
@@ -34,12 +34,22 @@
 \begin{frame}
   \frametitle{Reminder: where we left off in Michaelmas Term}
 
+  \pause
+
   Long, long ago, but in a galaxy not so far away:
 
   \begin{itemize}
     \item Lecture 3: The Process Model (1)
     \item Lecture 4: The Process Model (2)
+
+    \pause
+    \medskip
+
     \item Lab 1: I/O performance
+
+    \pause
+    \medskip
+
     \item Lab 2: IPC buffer size and probe effect
     \item Lab 3: Micro-architectural effects of IPC
   \end{itemize}
@@ -47,12 +57,17 @@
   \pause
   \medskip
 
-  Explore several (implied, and it turns out, incorrect) hypotheses:
+  Explored several implied (and rejected) hypotheses:
 
   \begin{itemize}
-    \item Larger I/O and IPC buffer sizes amortize system-call overheads,
-      improving application performance
+    \item Larger I/O and IPC buffer sizes amortize system-call overheads
+
+    \pause
+
     \item Micro-architecture is irrelevant
+
+    \pause
+
     \item The probe effect doesn't matter in real workloads
   \end{itemize}
 \end{frame}
@@ -60,19 +75,26 @@
 \begin{frame}
   \frametitle{This time: Introduction to the Network Stack}
 
+  Rapid tour across hardware and software:
+
+  \medskip
+
   \begin{enumerate}
     \item Networking and the sockets API
-    \item Network-stack design principles
-    \item Memory flow in hardware and software
+    \item Network-stack design principles: 1980s and today
+    \item Memory flow across hardware and software
     \item Network-stack construction and work flows
-    \item A couple of pieces of recent network-stack research
+    \item Recent network-stack research
   \end{enumerate}
 \end{frame}
 
 \section{Network-stack goals}
 
 \begin{frame}
-  \frametitle{A key OS function: networking}
+  \frametitle{Networking: a key OS function}
+
+  \pause
+  \medskip
 
   \begin{itemize}
     \item Communication between distributed computer systems
@@ -87,8 +109,8 @@
     \item A network stack provides:
     \begin{itemize}
       \item Sockets API and extensions
-      \item Interoperable, feature-rich, high-performance protocol implementations
-	(e.g., IPv4, IPv6, ICMP, UDP, TCP, SCTP, ...)
+      \item Interoperable, feature-rich, high-performance protocol
+	implementations (e.g., IPv4, IPv6, ICMP, UDP, TCP, SCTP, ...)
       \item Device drivers for Network Interface Cards (NICs)
       \item Monitoring and management interfaces (BPF, \texttt{ioctl})
       \item Plethora of support libraries (e.g., DNS)
@@ -104,12 +126,16 @@
       \item 2000s: 1-Gigabit/s, then 10-Gigabit/s Ethernet; 802.11, GSM data
       \item 2010s: Large-scale deployment of IPv6; 40/100-Gigabit/s Ethernet
     \end{itemize}
+
+    \medskip
+    \pause
+
     \item Vanishing technologies: UUCP, IPX/SPX, ATM, token ring, SLIP, ...
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{The Berkeley Sockets API}
+  \frametitle{The Berkeley Sockets API (1983)}
 
   \begin{columns}[T]
     \column{0.125\textwidth}
@@ -135,16 +161,19 @@
 	...
       \end{scriptsize}
 
+    \pause
+
     \column{0.775\textwidth}
     \begin{itemize}
-      \item Universal API for TCP/IP (POSIX, Windows, ...)
       \item \textit{The Design and Implementation of the 4.3BSD Operating
 	System} (although appeared in 4.2)
-      \item Kernel-resident network stack serving userspace networking
-	applications via system calls
+      \item Now universal TCP/IP API (POSIX, Windows, ...)
 
       \pause
+      \medskip
 
+      \item Kernel-resident network stack serves userspace networking
+	applications via system calls
       \item Reuse file-descriptor abstraction
       \begin{itemize}
 	\item Same API for local and distributed IPC
@@ -153,70 +182,121 @@
       \end{itemize}
 
       \pause
+      \medskip
 
       \item Multi-protocol (e.g., IPv4, IPv6, ISO, ...)
       \begin{itemize}
 	\item TCP-focused but not TCP-specific
-	\item Cross-protocol abstractions: `protocol', `socket
-	  address', `stream', `datagram', ...
+	\item Cross-protocol abstractions and libraries
+	\item Protocol-specific implementations
+	\item ``Portable'' applications
       \end{itemize}
-      \item NB: `socket' in BSD API is not the same as a `socket' in the TCP
-	RFC
+
+      %\pause
+      %\medskip
+      %
+      %\item NB: `socket' in BSD API != `socket' in TCP RFC
     \end{itemize}
   \end{columns}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Early BSD network-stack design principles}
+  \frametitle{BSD network-stack principles (1980s-1990s)}
+
+   A framework for \textbf{multi-protocol}, \textbf{packet-oriented} network
+   research:
+
+   \medskip
+   \pause
 
   \begin{itemize}
-    \item Framework for network research
-
-    \pause
-    \medskip
-
     \item Object-oriented: multiple protocols, multiple socket types, one API
     \begin{itemize}
-      \item Protocol-independent: streams vs. datagrams, sockets, socket
-	buffers, socket addresses, network interfaces, routing table, packets
-      \item Protocol-specific: connection lists, address/routing specialization,
-	routing, transport protocol itself -- encapsulation, decapsulation,
-	etc.
+
+      \pause
+
+      \item \textbf{Protocol-independent}: streams vs. datagrams, sockets,
+	socket buffers, socket addresses, network interfaces, routing table,
+	packets
+
+      \pause
+
+      \item \textbf{Protocol-specific}: connection lists, address/routing
+	specialization, routing, transport protocol itself -- encapsulation,
+	decapsulation, etc
     \end{itemize}
 
-    \pause
     \medskip
+    \pause
 
-    \item Fundamentally packet-oriented:
+    \item Fundamentally packet-oriented design:
     \begin{itemize}
       \item Packets and packet queueing as fundamental primitives
+
+      \pause
+
       \item If there is a failure (overload, corruption) drop the packet
+
+      \pause
+
       \item Work hard to maintain packet source ordering
+
+      \pause
+
       \item Differentiate `receive' from `deliver' and `send' from `transmit'
+
+      \pause
+
       \item Heavy focus on TCP functionality and performance
+
+      \pause
+
       \item Middle-node (forwarding), not just edge-node (I/O), functionality 
-      \item High-performance packet capture (Berkeley Packet Filter (BPF))
+
+      \pause
+
+      \item High-performance packet capture: Berkeley Packet Filter (BPF)
     \end{itemize}
 %    \item In-kernel consumers, such as NFS, supported using sockets KPI
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{FreeBSD network-stack design principles}
+  \frametitle{FreeBSD network-stack principles (1990s-2010s)}
 
   All of the 1980s features and also ...
-  \bigskip
+
+  \medskip
+  \pause
 
   \begin{itemize}
-    \item Multi-processor scalability
-    \item NIC offload features (checksums, TSO/LRO, full TCP)
-    \item Multi-queue network cards with load balancing/flow direction
-    \item Performance to 10s or 100s of Gigabit/s
-    \item Dual-IPv4/IPv6
-    \item Security/privacy: firewalls, IPsec, ...
-    \item Flexible memory model integrates with VM for zero-copy
-    \item Full network-stack virtualisation
-    \item Userspace networking via \texttt{netmap}
+    \item Hardware:
+    \begin{itemize}
+      \item Multi-processor scalability
+      \item NIC offload features (checksums, TSO/LRO, full TCP)
+      \item Multi-queue network cards with load balancing/flow direction
+      \item Performance to 10s or 100s of Gigabit/s
+      \item Wireless networking
+    \end{itemize}
+
+    \medskip
+    \pause
+
+    \item Protocols:
+    \begin{itemize}
+      \item Dual-IPv4/IPv6
+      \item Security/privacy: firewalls, IPsec, ...
+    \end{itemize}
+
+    \medskip
+    \pause
+
+    \item Software model:
+    \begin{itemize}
+      \item Flexible memory model integrates with VM for zero-copy
+      \item Network-stack virtualisation
+      \item Userspace networking via \texttt{netmap}
+    \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -226,22 +306,23 @@
   \frametitle{Memory flow in hardware}
 
   \begin{center}
-  \includegraphics[scale=0.5]{../../figures/network-cpu-ddio-nic.pdf}
+  \includegraphics[scale=0.5]{network-cpu-ddio-nic.pdf}
   \end{center}
 
-  \smallskip
+  \medskip
+  \pause
 
   \begin{itemize}
     \item Key idea: \textit{follow the memory}
 
-    \pause
     \medskip
-
-    \item Historically, memory copying in stack avoided due to CPU cost
-    \item Today, memory copying in stack avoided due to cache footprint
-
     \pause
+
+    \item Historically, memory copying avoided due to CPU cost
+    \item Today, memory copying avoided due to cache footprint
+
     \medskip
+    \pause
 
     \item Recent Intel CPUs push and pull DMA via the LLC (``DDIO'')
     \item NB: if we differentiate `send' and `transmit', is this a good idea?
@@ -252,7 +333,7 @@
   \frametitle{Memory flow in software}
 
   \begin{center}
-    \includegraphics[width=\textwidth]{../../figures/network-memory-flow.pdf}
+    \includegraphics[width=\textwidth]{network-memory-flow.pdf}
   \end{center}
 
   \pause
@@ -263,6 +344,7 @@
       \item Historically, zero-copy VM tricks for socket API ineffective
     \end{itemize}
 
+    \medskip
     \pause
 
     \item Network buffers cycle through the slab allocator
@@ -271,6 +353,7 @@
       \item Transmit: allocate in socket layer, free in NIC driver
     \end{itemize}
 
+    \medskip
     \pause
 
     \item DMA performs second copy; can affect cache/memory bandwidth
@@ -284,19 +367,30 @@
   \frametitle{The \texttt{mbuf} abstraction}
 
   \begin{center}
-    \includegraphics[width=\textwidth]{../../figures/network-mbufs.pdf}
+    \includegraphics[width=\textwidth]{network-mbufs.pdf}
   \end{center}
+
+  \vspace{-0.45cm}
+  \pause
 
   \begin{itemize}
     \item \texttt{mbuf} chains represent in-flight packets, streams, etc.
+
+    \pause
+
     \begin{itemize}
-      \item Also a unit of \textit{work} allocation throughout the stack
-      \item mbufs reference an in-\texttt{mbuf} or external buffer (e.g., VM
-      page)
-      \item Bi-modal packet size distribution; e.g., TCP ACKs vs. data
-      \item Common operations: prepend, append, truncate at front or end
+      \item Ops: alloc, free, prepend, append, truncate, enqueue, dequeue
+      \item Internal or external data buffer (e.g., VM page)
+      \item Bi-modal packet-size distribution; e.g., TCP ACKs vs. data
     \end{itemize}
-    \item Similar abstractions in other OSes -- e.g., \texttt{skbuff} in Linux
+
+    \smallskip
+    \pause
+
+    \item Unit of \textbf{work allocation and distribution} throughout the
+      stack
+    \pause
+    \item Similar structures in other OSes -- e.g., \texttt{skbuff} in Linux
     %\item Extraordinarily 1980s data structure -- and very hard to change!
   \end{itemize}
 \end{frame}
@@ -304,14 +398,14 @@
 \begin{frame}
   \frametitle{Local send/receive paths in the network stack}
   \begin{center}
-    \includegraphics[scale=0.4]{../../figures/network-in-out.pdf}
+    \includegraphics[scale=0.4]{network-in-out.pdf}
   \end{center}
 \end{frame}
 
 \begin{frame}
   \frametitle{Forwarding path in the network stack}
   \begin{center}
-    \includegraphics[scale=0.4]{../../figures/network-forward.pdf}
+    \includegraphics[scale=0.4]{network-forward.pdf}
   \end{center}
 \end{frame}
 
@@ -319,13 +413,17 @@
   \frametitle{Work dispatch: input path}
 
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{../../figures/network-dispatch-input.pdf}
+    \includegraphics[width=0.9\textwidth]{network-dispatch-input.pdf}
   \end{center}
 
   \begin{small}
   \begin{itemize}
+    \pause
     \item Deferred dispatch - \textit{ithread} -> \textit{netisr thread} ->
       \textit{user thread}
+
+    \pause
+
     \item Now: direct dispatch - \textit{ithread} -> \textit{user thread}
     \begin{itemize}
       \item Pros: reduced latency, better cache locality, drop overload early
@@ -339,15 +437,19 @@
   \frametitle{Work dispatch: output path}
 
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{../../figures/network-dispatch-output.pdf}
+    \includegraphics[width=0.9\textwidth]{network-dispatch-output.pdf}
   \end{center}
+
+  \pause
 
   \begin{itemize}
     \item Fewer deferred dispatch opportunities implemented
+
+    \pause
+
     \item Gradual shift of work from software to hardware
     \begin{itemize}
       \item Checksum calculation, segmentation, ...
-      \item But no fundamental changes to output path
     \end{itemize}
   \end{itemize}
 
@@ -357,18 +459,25 @@
   \frametitle{Work dispatch: TOE input path}
 
   \begin{center}
-    \includegraphics[width=0.9\textwidth]{../../figures/network-dispatch-toe.pdf}
+    \includegraphics[width=0.9\textwidth]{network-dispatch-toe.pdf}
   \end{center}
+
+  \vspace{-0.5cm}
+  \pause
 
   \begin{small}
   \begin{itemize}
-    \item Full TCP offload: kernel provides socket buffers and resource
-       allocation
-    \item Remainder, including state, retransmits, reassembly, etc, in NIC
+    \item Full TCP offload
     \begin{itemize}
-      \item But: Two network stacks?  Less flexible/updateable structure?
+      \item Kernel provides socket buffers and resource allocation
+      \item Remainder, including state, retransmits, reassembly, etc, in NIC
     \end{itemize}
-    \item Better with an explicit SW architecture -- e.g., Microsoft Chimney?
+
+    \smallskip
+    \pause
+
+    \item But: Two network stacks?  Less flexible/updateable structure?
+    \item Better with an explicit HW/SW architecture -- e.g., Microsoft Chimney?
   \end{itemize}
   \end{small}
 \end{frame}
@@ -439,21 +548,31 @@
     \column{0.45\textwidth}
 
       \smallskip
-      \includegraphics[width=1.1\textwidth]{../../figures/network-nic-stack.pdf}
+      \includegraphics[width=1.1\textwidth]{network-nic-stack.pdf}
 
       \bigskip
-      \includegraphics[width=1.1\textwidth]{../../figures/network-netmap-memory-flow.pdf}
+      \includegraphics[width=1.1\textwidth]{network-netmap-memory-flow.pdf}
 
     \column{0.45\textwidth}
 
+    \pause
+
     \begin{itemize}
       \item Map NIC buffers directly into user process memory
-      \item Zero copy to application
-      \item Userspace network stack can be specialized to task (e.g., packet
-	forwarding)
+      \item Zero copy to/from app.
+
+      \medskip
+      \pause
+
       \item System calls initiate DMA, block for NIC events
       \item Packets can be reinjected into normal stack
       \item Ships in FreeBSD, patch available for Linux
+
+      \medskip
+      \pause
+
+      \item Userspace network stack can be \textbf{specialized} to task
+	(e.g., packet forwarding)
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -469,15 +588,21 @@
     \column{0.45\textwidth}
 
     \smallskip
-    \includegraphics[scale=0.61]{../../figures/throughput_nginx_sandstorm_6nics_new.pdf} \\
-    \includegraphics[scale=0.61]{../../figures/cpu_nginx_sandstorm_6nics_new.pdf}
+    \includegraphics[scale=0.61]{throughput_nginx_sandstorm_6nics_new.pdf} \\
+    \includegraphics[scale=0.61]{cpu_nginx_sandstorm_6nics_new.pdf}
 
     \column{0.45\textwidth}
+
+    \pause
+
     \begin{itemize}
-      \item 30 years since current network-stack architecture principles
-	developed
-      \item Massive changes in compilers, architecture, micro-architecture,
-	memory, buses, NICs
+      \item 30 years since network-stack design developed
+
+      \medskip
+      \pause
+
+      \item Massive changes in architecture, micro-architecture, memory,
+	buses, NICs
       \begin{itemize}
 	\item Optimising compilers
 	% NB: first processor with cache in roughly 1984 -- after TCP and UDP!
@@ -486,6 +611,10 @@
 	\item DMA, multiqueue
 	\item 10 Gigabit/s Ethernet
       \end{itemize}
+
+      \medskip
+      \pause
+
       \item Revisit fundamentals through clean-slate stack
     \end{itemize}
   \end{columns}
@@ -555,13 +684,26 @@ September 1981                             Transmission Control Protocol
   \end{Tiny}
 
     \column{0.4\textwidth}
-    \bigskip
+
+    \pause
+
     \begin{itemize}
       \item McKusick, et al: Chapter 14 (\textit{Transport-Layer Protocols})
-      \item The \textit{socket buffer} abstraction
-      \item A (very) little about the TCP implementation
-      \item The TCP state machine
-      \item TCP flow and congestion control
+
+      \medskip
+      \pause
+
+      \item Transmission Control Protocol (TCP)
+      \item TCP implementation
+      \begin{itemize}
+	\item Buffers and input processing
+	\item Parallelism and performance
+	\item DoS resistance
+      \end{itemize}
+
+      \medskip
+      \pause
+
       \item The final two labs
     \end{itemize}
   \end{columns}
