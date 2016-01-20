@@ -7,7 +7,7 @@
 	<key>ApplicationVersion</key>
 	<array>
 		<string>com.omnigroup.OmniGraffle6</string>
-		<string>161.4.0.231332</string>
+		<string>167.4.0.248283</string>
 	</array>
 	<key>AutoAdjust</key>
 	<true/>
@@ -449,11 +449,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.6</string>
+						<real>0.20000000000000001</real>
 						<key>g</key>
-						<string>1</string>
+						<real>0.80000000000000004</real>
 						<key>r</key>
-						<string>0.6</string>
+						<real>0.20000000000000001</real>
 					</dict>
 				</dict>
 				<key>shadow</key>
@@ -465,10 +465,10 @@
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf1347\cocoasubrtf570
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf340
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc\partightenfactor0
 
 \f0\fs24 \cf0 em_intr()}</string>
 			</dict>
@@ -525,11 +525,11 @@
 					<key>Color</key>
 					<dict>
 						<key>b</key>
-						<string>0.6</string>
+						<real>0.20000000000000001</real>
 						<key>g</key>
-						<string>1</string>
+						<real>0.80000000000000004</real>
 						<key>r</key>
-						<string>0.6</string>
+						<real>0.20000000000000001</real>
 					</dict>
 				</dict>
 				<key>shadow</key>
@@ -541,10 +541,10 @@
 			<key>Text</key>
 			<dict>
 				<key>Text</key>
-				<string>{\rtf1\ansi\ansicpg1252\cocoartf1347\cocoasubrtf570
+				<string>{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf340
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc\partightenfactor0
 
 \f0\fs24 \cf0 em_start()\
 em_entr()}</string>
@@ -1104,7 +1104,7 @@ em_entr()}</string>
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2015-04-27 17:16:54 +0000</string>
+	<string>2016-01-18 08:31:19 +0000</string>
 	<key>Modifier</key>
 	<string>Robert Watson</string>
 	<key>NotesVisible</key>
@@ -1185,7 +1185,7 @@ em_entr()}</string>
 		<key>Expanded_Canvases</key>
 		<array/>
 		<key>Frame</key>
-		<string>{{0, 80}, {1436, 797}}</string>
+		<string>{{0, 0}, {1148, 697}}</string>
 		<key>ShowInfo</key>
 		<true/>
 		<key>ShowRuler</key>
@@ -1197,7 +1197,7 @@ em_entr()}</string>
 		<key>TopSlabHeight</key>
 		<real>250</real>
 		<key>VisibleRegion</key>
-		<string>{{-58, -58}, {922, 652}}</string>
+		<string>{{68.5, -1}, {634, 539}}</string>
 		<key>Zoom</key>
 		<real>1</real>
 		<key>ZoomValues</key>
