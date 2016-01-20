@@ -22,7 +22,7 @@
 
 \title{L41: Lab 5 - TCP Latency and Bandwidth}
 \author{Dr Robert N. M. Watson}
-\date{1 February 2016}
+\date{10 February 2016}
 
 \begin{frame}
   \titlepage
@@ -35,8 +35,8 @@
 
   \begin{itemize}
     \item TCP congestion control
-    \item Latency and bandwidth interactions
-    \item Tracing both protocol and implementation
+    \item TCP Protocol Control Block (TCPCB)
+    \item Exploratory and experimental questions
   \end{itemize}
 \end{frame}
 
@@ -51,16 +51,41 @@
       \end{center}
 
     \column{0.52\textwidth}
-      \begin{itemize}
-	\item Reliable, ordered, byte-stream transport protocol over IP
-	%\item Connections identified by unique IP-port 4-tuple
-	\item Three-way handshake: SYN~/ SYN-ACK~/ ACK (mostly!)
-        \item Flow control via advertised window size in ACKs
-	\item Congestion control via packet loss and ECN (`fairness')
 
+      \pause
+
+      \begin{itemize}
 	\item Network may delay, (reorder), drop, corrupt packets
+
+	\pause
+
+	\item TCP: Reliable, ordered, stream transport protocol over IP
+
+	%\item Connections identified by unique IP-port 4-tuple
+
+	\pause
+
+	\item Three-way handshake: SYN~/ SYN-ACK~/ ACK (mostly!)
+
+	\pause
+
 	\item Sequence numbers ACK'd; data retransmitted on loss
+
+	\pause
+
 	\item Round-Trip Time (RTT) measured to time out loss
+
+	\pause
+
+        \item Flow control via advertised window size in ACKs
+
+	\pause
+
+	\item Congestion control (`fairness') via packet loss and ECN
+
+	%\pause
+
+	%\item Complex teardown permits `half-close' and port reuse
       \end{itemize}
 
   \end{columns}
@@ -77,20 +102,31 @@
 
     \column{0.55\textwidth}
 
+      \pause
+
       \begin{itemize}
 	\item 1986 Internet CC collapse
 	\begin{itemize}
-	  \item 32Kbps -> 40bps
+	  \item 32Kbps -> \textbf{40bps}
 	\end{itemize}
+
+	\pause
 
 	\item Van Jacobson, SIGCOMM 1988
 	\begin{itemize}
 	  \item Don't send more data than the network can handle!
-	  \item \textit{Conservation of packets} via \textit{ACK clocking}
-	  \item \textit{Exponential retransmit timer}, \textit{slow start},
-	    \textit{aggressive receiver ACK}, and \textit{dynamic window
-	    sizing on congestion}
+
+	  \pause
+
+	  \item \textbf{Conservation of packets} via ACK clocking
+
+	  \pause
+
+	  \item Exponential retransmit timer, slow start, aggressive receiver
+	    ACK, and dynamic window sizing on congestion
         \end{itemize}
+
+	\pause
 
         \item ECN (RFC 3168), ABC (RFC 3465), Compound (Tan, et al, INFOCOM
 	  2006), Cubic (Rhee and Xu, ACM OSR 2008)
@@ -102,21 +138,31 @@
   \frametitle{Lect 6: TCP time/sequence graphs}
 
   \begin{columns}[T]
-    \column{0.4\textwidth}
+    \column{0.55\textwidth}
       \bigskip
-      \includegraphics[width=1.25\textwidth]{../../figures/tcp-time-sequence.pdf}
+      \includegraphics[width=1.2\textwidth]{../../figures/tcp-time-sequence.pdf}
 
-    \column{0.5\textwidth}
+    \column{0.35\textwidth}
     \begin{itemize}
-      \item Extracted from bi-directional TCP packet traces
+
+      \bigskip
+      \pause
+
+      \item Extracted from TCP packet traces
+
+      \medskip
+      \pause
+
+      \item Visualise windows, congestion response, RTT, etc.
       \begin{itemize}
-	\item Sequence numbers in data segments, advertised window,
-	  acknowledgments
-	\item X: time
-	\item Y: sequence number
+	\item X: Time
+	\item Y: Sequence number
       \end{itemize}
-      \item Visualise receive windows, congestion behaviour, RTT, ...
-      \item We can also extract this data using DTrace
+
+      \medskip
+      \pause
+
+      \item We can also extract this data from the stack using DTrace
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -162,7 +208,7 @@
     \item As latency varies, how does overall bandwidth change?
     \item How does using a fixed rather than auto-resized socket buffer affect
       advertised receive window?  Use a fixed buffer size (1MB).
-    \item How quickly does TCP ready steady state (i.e., shift out of slow
+    \item How quickly does TCP enter steady state (i.e., shift out of slow
       start) at a 10ms RTT?
       Is this a product of the congestion or the socket-buffer limit?
   \end{itemize}
@@ -188,8 +234,8 @@
   \begin{itemize}
     \item Ensure that you are able to properly extract both TCP header and
       \texttt{tcpcb} fields from the \texttt{tcp\_do\_segment} FBT probe
-    \item Generating the data for a time--bandwidth graph
-    \item Generating the data for a time--sequence-number graph
+    \item Generate the data for a time--bandwidth graph
+    \item Generate the data for a time--sequence-number graph
     \item Ask us if you have any questions or need help
   \end{itemize}
 \end{frame}
