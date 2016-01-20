@@ -8,7 +8,7 @@
 
 \title{L41: Lab 5 - TCP Latency and Bandwidth}
 \author{Dr Robert N.M. Watson}
-\date{Michaelmas Term 2015}
+\date{Lent Term 2015}
 \maketitle
 
 \noindent
@@ -61,9 +61,10 @@ TCP proves two rate-control mechanisms:
   frequently, interpretation of packet-loss events as a congestion indicator.
   When a receiver notices a gap in the received sequence-number series, it
   will return a \textit{duplicate ACK}, which hints to the sender that a
-  packet has been lost and should be retransmitted~\footnote{This is one
-  reason why it is important that underlying network substrates retain packet
-  ordering for TCP flows!}.
+  packet has been lost and should be retransmitted\footnote{This is one reason
+  why it is important that underlying network substrates retain packet
+  ordering for TCP flows: misordering may be interpreted as packet loss,
+  triggering unnecessary retransmission.}.
 
   TCP congestion control maintains a \textit{congestion window} on the sender
   -- similar in effect to the flow-control window, in that it limits the
@@ -131,8 +132,8 @@ For this lab, you will prepare two types of TCP graphs:
   Bandwidth may be usefully calculated as the change in sequence number (i.e.,
   bytes) over a window of time -- e.g., a second.
   Care should be taken to handle wrapping in the 32-bit sequence space; for
-  shorter measurements -- e.g., by dropping traces from experimental runs in
-  which sequence numbers wrap.
+  shorter measurements this might be accomplished by dropping traces from
+  experimental runs in which sequence numbers wrap.
 
 \begin{figure}[t]
 \begin{center}
@@ -157,7 +158,7 @@ sender, and acknowledgement and advertised window based is from the receiver.}
   and their acknowledgments.
   Sender-originated data consists of the range of bytes in a particular TCP
   segment, starting with the transmitted sequence number and continuing
-  through the packet length.
+  through the seqeuence number plus packet length.
   Receiver-originated data consists of the acknowledged sequence number and
   the advertised window (which is added to the acknowledged sequence number
   to calculate the highest sequence number the sender is, at that point,
@@ -177,9 +178,9 @@ investigating specific local behaviour in TCP.
 
 \section*{The benchmark}
 
-We will reuse the Lab-4 benchmark without modification.
-We will run the benchmark both with, and without, setting the socket-buffer
-size, allowing us to explore the effects of manual versus automatic
+This lab uses the same IPC benchmark as prior labs.
+You will run the benchmark both with, and without, setting the socket-buffer
+size, allowing you to explore the effects of manual versus automatic
 socket-buffer tuning.
 The benchmark continues to send its data on the accepted server-side socket on
 port 10,141.
@@ -191,9 +192,9 @@ socket-buffer size.
 
 \section*{DTrace probes}
 
-As in Lab 4, we will utilise the \texttt{tcp\_do\_segment} FBT probe to track
+As in Lab 4, you will utilise the \texttt{tcp\_do\_segment} FBT probe to track
 TCP input.
-However, we will now take advantage of access to the TCP control block
+However, you will now take advantage of access to the TCP control block
 (\texttt{tcpcb} structure -- \texttt{args[3]} to the \texttt{tcp\_do\_segment}
 FBT probe) to gain additional insight into TCP behaviour.
 The following fields may be of interest:
@@ -204,8 +205,8 @@ The following fields may be of interest:
 \item[\texttt{snd\_cwnd}] On the sender, the current calculated
   congestion-control window.
 \item[\texttt{snd\_ssthresh}] On the sender, the current \textit{slow-start
-  threshold} -- if \texttt{snd\_cwnd} is less than or equal to
-  \texttt{snd\_ssthresh}, \\
+  threshold} -- if \texttt{snd\_cwnd} is less than or equal to \\
+  \texttt{snd\_ssthresh},
   then the connection is in slow start; otherwise, it is in congestion
   avoidance.
 \end{description}
@@ -241,7 +242,7 @@ require both the base sequence number (\texttt{args[1]->th\_seq}) and the
 length to calculate the range covered by a transmitted segment.
 
 Data for the two types of graphs described above is typically gathered at (or
-close to) one endpoint in order to provide time line consistency -- i.e., the
+close to) one endpoint in order to provide timeline consistency -- i.e., the
 viewpoint of just the client or the server, not some blend of the two
 time lines.
 As we will be measuring not just data from packet headers, but also from the
@@ -252,9 +253,8 @@ segments on the receiver (where they are processed by
 \texttt{tcp\_do\_segment}, and to collect information on ACKs on the server
 (where they are similarly processes).
 However, given a significant latency between client and server, and a desire
-to plot points coherently on a real-time X axis, and once you have initial
-measurements done, you might wish to investigate other ways to plot data for
-transmitted data before it is sent on the server.
+to plot points coherently on a unified real-time X axis, capturing both at the
+same endpoint will make this easier.
 
 It is similarly worth noting that \texttt{tcp\_do\_segment}'s entry FBT probe
 is invoked before the ACK or data segment has been processed -- so access to
@@ -273,7 +273,7 @@ allowing past estimates of bandwidth to trigger a transition from slow start
 to steady state without `overshooting', potentially triggering significant
 loss.
 However, in the context of this lab, carrying of state between connections
-reduces their independent.
+reduces the independence of our experimental runs.
 As such, we recommend issuing the following command (as root) between runs of
 the IPC benchmark:
 
