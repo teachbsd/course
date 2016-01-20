@@ -8,7 +8,7 @@
 
 \title{L41: Lab 4 - The TCP State Machine}
 \author{Dr Robert N.M. Watson}
-\date{Michaelmas Term 2015}
+\date{Lent Term 2015}
 \maketitle
 
 \noindent
@@ -22,29 +22,29 @@ The goals of this and the following lab are to:
 \end{itemize}
 
 \noindent
-In this lab, we begin that investigation, which will be extended by activities
-in Lab 5.
+In this lab, we begin that investigation, which will be extended to include
+additional exploration of TCP bandwidth in Lab 5.
 
 \section*{Background: Transmission Control Protocol (TCP)}
 
 The Transmission Control Protocol (TCP) is a near-universally used protocol
-providing a reliable, bi-directional, ordered byte stream over the Internet
+that provides reliable, bi-directional, ordered byte streams over the Internet
 Protocol (IP) between two communication endpoints.
 TCP connections are built between a pair of IP addresses, identifying host
 network interfaces, and port numbers selected applications (or automatically
 by the kernel) on either endpoint -- collectively, a \textit{4-tuple}.
 While other models are possible, typical TCP use has one side play the role of
-a `server', which provides some network-reachable service on a well-known
-port, and the other the `client', building a connection to reach that service
-from an \textit{ephemeral port} randomly selected by the client TCP
-implementation.
+a `server', which provides some network-reachable service on a
+\textit{well-known port}, and the other the `client', building a connection to
+reach that service from an \textit{ephemeral port} randomly selected by the
+client TCP implementation.
 
 The BSD (and now POSIX) sockets API offers a portable and simple interface for
 TCP/IP client and server programming.
 The server opens a socket using the \texttt{socket(2)} system call, binds a
 well-known or previously negotiated port number using \texttt{bind(2)}, and
-performs \texttt{listen(2)} to begin accepting new connections, which are
-returned by calls to \texttt{accept(2)}.
+performs \texttt{listen(2)} to begin accepting new connections, returned as
+additional connected sockets from calls to \texttt{accept(2)}.
 The client application similarly calls \texttt{socket(2)} to open a socket,
 and \texttt{connect(2)} to connect to a target address and port number.
 Once open, both sides can use system calls such as \texttt{read(2)},
@@ -60,8 +60,8 @@ machine instances, one on each communications endpoint.
 Once in the \texttt{ESTABLISHED} steady state, data passes in each direction
 via \textit{segments} that are \textit{acknowledged} by packets passing in the
 other direction.
-The rate of data flow is controlled by TCP's \texttt{flow-control} and
-\texttt{congestion-control} mechanisms that respectively prevent the sender
+The rate of data flow is controlled by TCP's \textit{flow-control} and
+\textit{congestion-control} mechanisms that respectively prevent the sender
 from sending more data than the receiver or network can handle.
 Congestion control operates in three phases: \textit{slow start}, in which use
 of bandwidth is rapidly ramped up to exploit available network bandwidth
@@ -94,30 +94,15 @@ Use of a fixed port number makes it easy to identify and classify experimental
 packets on the loopback interface using packet-sniffing tools such as
 \texttt{tcpdump}, and also via DTrace predicates.
 You are advised to minimise network activity during the running of TCP-related
-benchmarks, and when using DTrace, to recuce the degree of interference both
-from the perspective of your analysing behaviour, and for reasons of the probe
+benchmarks, and when using DTrace, to reduce the degree of interference both
+from the perspective of analysing behaviour, and for reasons of the probe
 effect.
 
 \subsection*{Compiling the benchmark}
 
-You will need to update your version of the IPC benchmark by downloading,
-untarring, and building the Lab 4 bundle, which may be found here:
-
-\begin{verbatim}
-scp /anfs/www/html/teaching/1415/L41/labs/ipc.tgz
-  guest@192.168.141.100:/data
-\end{verbatim}
-
-\noindent
-Or via the web:
-
-\medskip
-\noindent
-\url{https://www.cl.cam.ac.uk/teaching/1415/L41/labs/ipc.tgz}
-\medskip
-
-\noindent
-Please refer to the prior lab handout for build instructions.
+Labs 4 and 5 use the same IPC benchmark utilized in Labs 2 and 3.
+Follow instructions present in those lab assignments to download, untar, and
+build the IPC benchmark.
 
 \subsection*{Running the benchmark}
 
@@ -157,6 +142,8 @@ which specify one-way latencies in milliseconds (e.g., replace `10' with `5'
 in both commands).
 The total Round-Trip Time (RTT) is the sum of the two latencies -- i.e., 10ms
 in each direction comes to a total of 20ms RTT.
+Note that DUMMYNET is a simulation tool, and subject to limits on granularity
+and precision.
 Next, you must assign traffic associated with the experiment, classified by
 its TCP port number and presence on the loopback interface (\texttt{lo0}), to
 the pipes to inject latency:
