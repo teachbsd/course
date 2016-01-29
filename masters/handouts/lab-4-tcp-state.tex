@@ -8,7 +8,7 @@
 
 \title{L41: Lab 4 - The TCP State Machine}
 \author{Dr Robert N.M. Watson}
-\date{Lent Term 2015}
+\date{Lent Term 2016}
 \maketitle
 
 \noindent
@@ -89,7 +89,7 @@ network latency a critical factor in effective utilisation of path bandwidth.
 
 Our IPC benchmark also supports a \texttt{tcp\_socket} IPC
 type which requests use of TCP over the \textit{loopback interface} on port
-10,141.
+\texttt{10141}.
 Use of a fixed port number makes it easy to identify and classify experimental
 packets on the loopback interface using packet-sniffing tools such as
 \texttt{tcpdump}, and also via DTrace predicates.
@@ -205,7 +205,7 @@ employed in prior labs:
   The second argument (\texttt{args[1]}) is a pointer to a \texttt{struct
   tcphdr} that describes the TCP header (see RFC 893).
   You will want to classify packets by port number to ensure that you are
-  collecting data only from the flow of interest (port 10,141), and
+  collecting data only from the flow of interest (port \texttt{10141}), and
   associating collected data with the right direction of the flow.
   Do this by checking TCP header fields \texttt{th\_sport} (source port) and
   \texttt{th\_dport} (destination port) in your DTrace predicate.
@@ -267,7 +267,7 @@ dtrace -n fbt::tcp_state_change:entry '{
 \end{verbatim}
 
 \noindent
-These scripts can be extended to match flows on port 10,141 in either
+These scripts can be extended to match flows on port \texttt{10141} in either
 direction as needed.
 
 \section*{Exploratory questions}

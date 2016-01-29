@@ -8,7 +8,7 @@
 
 \title{L41: Lab 5 - TCP Latency and Bandwidth}
 \author{Dr Robert N.M. Watson}
-\date{Lent Term 2015}
+\date{Lent Term 2016}
 \maketitle
 
 \noindent
@@ -32,7 +32,7 @@ As explored in the previous lab, TCP goes through complex setup and shutdown
 procedures, but (ideally) spends the majority of its time in the
 \texttt{ESTABLISHED} state, in which stream data can be transmitted to the
 remote endpoint.
-TCP proves two rate-control mechanisms:
+TCP specifies two rate-control mechanisms:
 
 \begin{description}
 \item[Flow control] allows a receiver to limit the amount of unacknowledged
@@ -95,7 +95,7 @@ TCP proves two rate-control mechanisms:
 \end{description}
 
 TCP composes these two windows by taking the minimum: it will neither send too
-much bandwidth for the remote host, nor for the network itself.
+much data for the remote host, nor for the network itself.
 One limit is directly visible in the packets themselves (the advertised
 window from the receiver), but the other must either be intuited from wire
 traffic, or more preferably, monitored using end-host instrumentation.
@@ -108,8 +108,7 @@ Two further informal definitions will be useful:
   timeouts detecting packet loss.
   More subtlely, RTT also limits the rate at which TCP will grow the
   congestion window, especially during slow start: the window can grow only as
-  data is acknowledged, which requires round-trip times for ACKs to the
-  received.
+  data is acknowledged, which requires round-trip times as ACKs are received.
 
 \item[Bandwidth] is the throughput capacity of a link (or network path) to
   carry data, typically measured in bits or bytes per second.
@@ -183,10 +182,11 @@ You will run the benchmark both with, and without, setting the socket-buffer
 size, allowing you to explore the effects of manual versus automatic
 socket-buffer tuning.
 The benchmark continues to send its data on the accepted server-side socket on
-port 10,141.
+port \texttt{10141}.
 This means that data segments carrying benchmark data from the sender to the
-receiver will have a \textit{source port} of 10,141, and acknowledgements from
-the receiver to the sender will have a \textit{destination port} of 10,141.
+receiver will have a \textit{source port} of \texttt{10141}, and
+acknowledgements from the receiver to the sender will have a
+\textit{destination port} of \texttt{10141}.
 Do ensure that, as in Lab 2, you have increased the kernel's maximum 
 socket-buffer size.
 
@@ -250,7 +250,7 @@ TCP implementation itself, we recommend gathering most data close to the
 sender.
 As described here, it may seem natural to collect information on data-carrying
 segments on the receiver (where they are processed by
-\texttt{tcp\_do\_segment}, and to collect information on ACKs on the server
+\texttt{tcp\_do\_segment}), and to collect information on ACKs on the server
 (where they are similarly processes).
 However, given a significant latency between client and server, and a desire
 to plot points coherently on a unified real-time X axis, capturing both at the
