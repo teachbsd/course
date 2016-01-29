@@ -185,7 +185,7 @@
   \begin{description}
     \item[\texttt{snd\_wnd}] Last received advertised flow-control window.
     \item[\texttt{snd\_cwnd}] Current calculated congestion-control window.
-    \item[\texttt{snd\_ssthresh}] Current show-start threshold: if
+    \item[\texttt{snd\_ssthresh}] Current slow-start threshold: if
       \texttt{snd\_cwnd} is less than or equal to \texttt{snd\_ssthresh}, then
       TCP is in slow start; otherwise, it is in congestion avoidance.
   \end{description}
