@@ -1,0 +1,22 @@
+University of Cambridge - L41 Advanced Operating Systems
+--------------------------------------------------------
+
+This is the material from the University of Cambridge Computer Laboratory's
+L41: Advanced Operating Systems masters course.  Course development was led
+by Robert N.M. Watson and George Neville-Neil, who gratefully acknowledge
+the following contributors, without whom the course could not be taught:
+
+  Ruslan Bukin
+  Alex Richardson
+  Andrew Turner
+  Bjoern A. Zeeb
+
+The course is taught as six 1-hour lectures and five 2-hour labs.  Each lab
+session begins with a short "lecturelet" that introduces key concepts for
+the lab.  Students will produce three lab reports: a "practice run" based
+on Lab 1 (I/O), followed by two assessed lab reports based on Labs 2+3 (IPC)
+and Labs 4+5 (TCP).  They will also read selected chapters of the Design and
+Implementation of the FreeBSD Operating System, and DTrace: Dynamic Tracing
+in Oracle Solaris, Mac OS X and FreeBSD, as well as selected research
+readings.  Full information on course structure and approach can be found in
+the course syllabus: handouts/syllabus.tex.  
