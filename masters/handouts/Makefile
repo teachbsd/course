@@ -14,4 +14,4 @@ PDFS=		dtrace.pdf						\
 all: ${PDFS}
 
 %.pdf : %.tex
-	pdflatex $<
+	latexmk -pdf $<
