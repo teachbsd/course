@@ -1,6 +1,6 @@
 # Teaching Operating Systems with Tracing #
 
-## A set of courses for students and software practitioners ##
+## A set of open-source courses for students and software practitioners ##
 
 *Robert N. M. Watson* and *George V. Neville-Neil*
 
@@ -31,7 +31,7 @@ The preferred text for the course is
 [The Design and Implementation of the FreeBSD Operating System, 2nd Ed.](http://www.informit.com/store/design-and-implementation-of-the-freebsd-operating-9780321968975)
 
 The material contained herein is shared under a permissive,
-[open source license](LICENSE.md) with the intent that it is widely
+[open-source license](LICENSE.md) with the intent that it is widely
 adopted.
 
 
