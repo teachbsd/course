@@ -5,7 +5,7 @@
 *Robert N. M. Watson* and *George V. Neville-Neil*
 
 We have observed a decline in the teaching of operating systems
-fundamental in a period where it is becoming more important, in large
+fundamentals in a period where it is becoming more important, in large
 part due to a lack of contemporary and re-usable material, and
 training for people to teach operating systems. Where such courses
 still exist they work with toys rather than real systems, avoid
