@@ -13,7 +13,7 @@
 \usepackage{listings}
 \begin{document}
 \lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
-  basicstyle=\tiny, showspaces=false, showtabs=false}
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
 
 \title{A Look Inside FreeBSD with DTrace}
 \subtitle{What is DTrace?}
@@ -101,8 +101,8 @@ CPU     ID                    FUNCTION:NAME
 \begin{frame}
   \frametitle{Providers}
   \begin{description}
-  \item[fbt] Function Boundary Tracing ($49408$)
-  \item[syscall] System Calls ($2145$)
+  \item[fbt] Function Boundary Tracing ($50413$)
+  \item[syscall] System Calls ($2148$)
   \item[profile] Timing source 
   \item[proc] Process Operations 
   \item[sched] Scheduler
@@ -124,7 +124,7 @@ CPU     ID                    FUNCTION:NAME
     \item[Function] write
     \item[Name] entry
     \end{description}
-  \item \Verb+fbt:kernel:ether_input+
+  \item \Verb+fbt:kernel:ether_input:entry+
     \begin{description}
     \item[Provider] fbt
     \item[Module] kernel
@@ -142,14 +142,7 @@ CPU     ID                    FUNCTION:NAME
     \item Default on FreeBSD 10 or later
     \end{itemize}
   \item The ability to sudo or be root
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{DTrace Command}
-  \begin{itemize}
-  \item The complete syntax is covered in the dtrace manual page
-  \item Requires sudo or that dtrace be installed with setuid
+  \item The complete command syntax is covered in the dtrace manual page
   \end{itemize}
 \end{frame}
 
@@ -162,7 +155,7 @@ CPU     ID                    FUNCTION:NAME
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile,fragile]
+\begin{frame}[fragile]
   \frametitle{Probe Arguments}
   \begin{itemize}
   \item Use verbose (-v) mode to find probe arguments
@@ -234,7 +227,7 @@ dtrace: description 'syscall:::entry ' matched 1072 probes
 \begin{frame}[fragile]
   \frametitle{Aggregations}
   \begin{itemize}
-  \item \verb+dtrace -n 'syscall:::entry { @[probefunc] = count(); }'+
+  \item \verb+syscall:::entry { @[probefunc] = count(); }+
   \item The \verb+@[probefunc]+ syntax
   \item Aggregates data during a run for later output
   \item Extremely powerful feature of D language
