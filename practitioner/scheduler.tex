@@ -100,7 +100,7 @@
 
 \begin{frame}[fragile]
   \frametitle{Who's sleeping?}
-\begin{verbatim}
+\begin{lstlisting}
 dtrace -n 'sched:::sleep { @prog[execname] = count() }
 dtrace: description 'sched:::sleep ' matched 1 probe
 ^C
@@ -110,12 +110,13 @@ pagezero                                  1
 sendmail                                  1
 sudo                                      1
 nfsd                                          2
-\end{verbatim}
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Idle vs. Active}
-\begin{verbatim}
+  \centering
+\begin{lstlisting}
 sudo ./cpudist
 Ctrl-C
   KERNEL 
@@ -130,7 +131,7 @@ Ctrl-C
  32768 |@                                    4        
  65536 |                                     1        
 131072 |                                     0        
-\end{verbatim}
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}
