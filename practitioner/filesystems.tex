@@ -41,7 +41,7 @@
   \begin{itemize}
   \item What names are being looked up?
   \end{itemize}
-\begin{verbatim}
+\begin{lstlisting}
 dtrace -n 'vfs:namei:lookup:entry { printf("%s", stringof(arg1));}'
 CPU     ID                    FUNCTION:NAME
   2  27847                     lookup:entry /bin/ls
@@ -49,7 +49,7 @@ CPU     ID                    FUNCTION:NAME
   2  27847                     lookup:entry /etc
   2  27847                     lookup:entry /etc/libmap.conf
   2  27847                     lookup:entry /etc/libmap.conf
-\end{verbatim}
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}
@@ -63,9 +63,9 @@ CPU     ID                    FUNCTION:NAME
 
 \begin{frame}[fragile]
   \frametitle{Who is missing the cache?}
-\begin{verbatim}
+\begin{lstlisting}
 dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
-\end{verbatim}
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -85,9 +85,9 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 
 \begin{frame}[fragile]
   \frametitle{Adding negative entries}
-\begin{verbatim}
+\begin{lstlisting}
  dtrace -n 'vfs:namecache:enter_negative: { printf("%s", stringof(arg1)); }'
-\end{verbatim}
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}
