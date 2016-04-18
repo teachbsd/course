@@ -313,7 +313,7 @@ END
 
 \noindent
 Other DTrace predicates can then refer to \texttt{self->in\_benchmark} to
-determine whether the probe is occuring during the I/O loop.
+determine whether the probe is occurring during the I/O loop.
 The benchmark is careful to set up the runtime environment suitably before
 performing its first clock read, and to perform terminal output only after the
 second clock read, so it is fine to leave benchmark terminal output enabled.

@@ -42,7 +42,7 @@ Pipes are used most frequently between pairs of processes in a UNIX
 \textit{process pipeline}: a chain of processes started by a single command
 line, whose output and input file descriptors are linked.
 Although pipes can be set up between unrelated processes, the primary means of
-acquiring a pipe is through inheritence across \texttt{fork()}, meaning that
+acquiring a pipe is through inheritance across \texttt{fork()}, meaning that
 they are used between closely related processes (e.g., with a common parent
 process).
 Sockets are used when two processes are created in independent contexts and
@@ -284,7 +284,7 @@ As in the last lab, it is useful to know that the system call
 the IPC loop.
 In this benchmark, these events may occur in different threads or processes,
 as the sender performs the initial timestamp before transmitting the first
-byte over IPC, and the receiver performs the final timestamp after reciving
+byte over IPC, and the receiver performs the final timestamp after receiving
 the last byte over IPC.
 You may wish to bracket tracing between a return probe for the former, and an
 entry probe for the latter; see the notes from the last lab for an example.
