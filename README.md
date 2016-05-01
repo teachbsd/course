@@ -34,4 +34,7 @@ The material contained herein is shared under a permissive,
 [open-source license](LICENSE.md) with the intent that it is widely
 adopted.
 
+Note that the *practitioner* course requires the
+[Metropolitan Beamer](https://github.com/matze/mtheme) to be installed
+before the slides can be compiled.
 
