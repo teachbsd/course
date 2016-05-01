@@ -35,6 +35,6 @@ The material contained herein is shared under a permissive,
 adopted.
 
 Note that the *practitioner* course requires the
-[Metropolitan](https://github.com/matze/mtheme) Beameer theme to be
+[Metropolitan](https://github.com/matze/mtheme) Beamer theme to be
 installed before the slides can be compiled.
 
