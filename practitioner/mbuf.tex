@@ -1,0 +1,105 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Network Memory (mbufs)}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is an mbuf?}
+  \begin{itemize}
+  \item Memory for network data 
+  \item Contains meta-data
+  \item Compact and flexible
+  \item Clusters vs. mbufs
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{mbuf structures}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{mbuf lifecycle}
+  \begin{itemize}
+  \item Allocation
+  \item Adjustment
+  \item References
+  \item Recycling
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{mbuf API}
+  \begin{itemize}
+  \item \verb|m_init| Initialize an mbuf
+  \item \verb|m_get| Allocate an mbuf
+  \item \verb|m_gethdr| Allocate a packet header mbuf 
+  \item \verb|m_getcl| Allocate an mbuf with a cluster
+  \item \verb|m_free| Free a single mbuf
+  \item \verb|m_freem| Free a chain of mbufs
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{mbuf tracepoints}
+  \begin{itemize}
+  \item \verb|sdt:::m-init|
+  \item \verb|sdt:::m-gethdr|
+  \item \verb|sdt:::m-get|
+  \item \verb|sdt:::m-getcl|
+  \item \verb|sdt:::m-clget|
+  \item \verb|sdt:::m-cljget|
+  \item \verb|sdt:::m-cljset|
+  \item \verb|sdt:::m-free|
+  \item \verb|sdt:::m-freem|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{mbuf translator}
+\begin{lstlisting}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{mbuf one liners}
+  \begin{itemize}
+  \item Where are clusters allocated?
+  \item \verb|sdt:::m-getcl { @[stack()] = count();}|
+  \item Where do we wait?
+  \item \verb|m-getcl/arg0 == 2/{@[stack()] = count();}|
+  \item Where do we not wait?
+  \item \verb|m-getcl/arg0 == 1/{ @[stack()] = count(); }|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Network Lab (mbufs)}
+  \begin{itemize}
+  \item Write an mbuf one liner to track mbuf frees.
+  \item Write a short script that tracks \verb|m_get| vs. \verb|m_free|
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
