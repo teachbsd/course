@@ -1,0 +1,90 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Extending DTrace}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Death to printf}
+  \begin{itemize}
+  \item Over $10,000$ calls to \verb|device_printf()|
+  \item $75$ Separate version of \verb|DEBUG| macro
+  \item \verb|WITNESS| for lock ordering
+  \item \verb|LOCKSTAT| locking statistics
+  \item \verb|KTR| for Kernel Trace
+  \item Enabled at compile time
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Statically Defined Tracepoints}
+  \begin{itemize}
+  \item Can appear anywhere in code 
+    \begin{itemize}
+    \item Not just at entry or return
+    \end{itemize}
+  \item Useful for replacing \verb|printf()| and logging and \verb|DEBUG|
+  \item \verb|USDT| vs. \verb|SDT|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Extension Process}
+  \begin{description}
+  \item [Provider] Add or extend? 
+  \item [Declare] tracepoints in a header
+  \item [Define] tracepoints in compiled code 
+  \item [Translate] the arguments and structures
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Arguments and Types}
+  \begin{description}
+  \item[Debugger Syntax] 
+  \item[Translators] 
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Translators}
+  \begin{itemize}
+  \item Rationalize structures across platforms
+  \item Give convenient names for complex data types 
+  \item Do not have a zero cost
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Stability}
+  \begin{itemize}
+  \item What makes a provider or probe stable or unstable?
+    \begin{description}
+    \item [TCP] Stable
+    \item[UDP] Stable
+    \item[IP] Stable
+    \item[mbuf] Unstable
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

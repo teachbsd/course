@@ -1,0 +1,194 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Kernel SDTs}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Converting Logging Code}
+  \begin{itemize}
+  \item Most code littered with \verb|printf|s
+  \item Many different \verb|DEBUG| options
+  \item  Most can be converted
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCPDEBUG Case Study}
+  \begin{itemize}
+  \item TCBDEBUG added in the original BSD releases
+  \item Rarely enabled kernel option that shows:
+    \begin{itemize}
+    \item direction
+    \item state
+    \item sequence space
+    \item \verb|rcv_nxt|, \verb|rcv_wnd|, \verb|rcv_up|
+    \item \verb|snd_una|, \verb|snd_nxt|, \verb|snx_max|
+    \item \verb|snd_wl1|, \verb|snd_wl2|, \verb|snd_wnd|
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCPDEBUG Before}
+  \begin{itemize}
+  \item $127$ lines of code
+  \item $14$ calls to printf
+  \item Statically defined ring buffer of $100$ entries
+  \item Static log format
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCPDEBUG After}
+  \begin{itemize}
+  \item Four (4) new tracepoints
+    \begin{itemize}
+    \item debug-input
+    \item debug-output
+    \item debug-user
+    \item debug-drop
+    \end{itemize}
+  \item Access to TCP and socket structures
+  \item Flexible log format
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Convenient Macros}
+  \begin{description}
+  \item [SDT_PROVIDER_DECLARE] Declare a provider in an include file
+  \item [SDT_PROVIDER_DEFINE] Instantiate a provider in C code
+  \item [SDT_PROBE_DECLARE] Declare a probe in a n include file
+  \item [SDT_PROBE_DEFINEN] Define a probe of X arguments (0-6)
+  \item [SDT_PROBE_DEFINEN_XLATE] Define a probe of N arguments with translation
+  \end{description}
+  \begin{itemize}
+  \item Only available for kernel code
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Debug Desclarations}
+\begin{lstlisting}
+SDT_PROBE_DECLARE(tcp, , , debug__input);
+SDT_PROBE_DECLARE(tcp, , , debug__output);
+SDT_PROBE_DECLARE(tcp, , , debug__user);
+SDT_PROBE_DECLARE(tcp, , , debug__drop);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Debug Call Sites}
+\begin{lstlisting}
+#ifdef TCPDEBUG
+	if (tp == NULL || (tp->t_inpcb->inp_socket->so_options & SO_DEBUG))
+		tcp_trace(TA_DROP, ostate, tp, (void *)tcp_saveipgen,
+			  &tcp_savetcp, 0);
+#endif
+	TCP_PROBE3(debug__input, tp, th, mtod(m, const char *));
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Debug Translators}
+\begin{lstlisting}
+SDT_PROBE_DEFINE3_XLATE(tcp, , , debug__input,
+    "struct tcpcb *", "tcpsinfo_t *" ,
+    "struct tcphdr *", "tcpinfo_t *",
+    "uint8_t *", "ipinfo_t *");
+
+SDT_PROBE_DEFINE3_XLATE(tcp, , , debug__output,
+    "struct tcpcb *", "tcpsinfo_t *" ,
+    "struct tcphdr *", "tcpinfo_t *",
+    "uint8_t *", "ipinfo_t *");
+
+SDT_PROBE_DEFINE2_XLATE(tcp, , , debug__user,
+    "struct tcpcb *", "tcpsinfo_t *" ,
+    "int", "int");
+
+SDT_PROBE_DEFINE3_XLATE(tcp, , , debug__drop,
+    "struct tcpcb *", "tcpsinfo_t *" ,
+    "struct tcphdr *", "tcpinfo_t *",
+    "uint8_t *", "ipinfo_t *");
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Debug Example Script}
+\begin{lstlisting}
+tcp:kernel::debug-input
+/args[0]->tcps_debug/
+{
+	seq = args[1]->tcp_seq;
+	ack = args[1]->tcp_ack;
+	len = args[2]->ip_plength - sizeof(struct tcphdr);
+	flags = args[1]->tcp_flags;
+	
+	printf("%p %s: input [%xu..%xu]", arg0,
+	       tcp_state_string[args[0]->tcps_state], seq, seq + len);
+
+	printf("@%x, urp=%x", ack, args[1]->tcp_urgent);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP DEbug Example Script Part 2}
+\begin{lstlisting}
+	printf("%s", flags != 0 ? "<" : "");
+	printf("%s", flags & TH_SYN ? "SYN," :"");
+	printf("%s", flags & TH_ACK ? "ACK," :"");
+	printf("%s", flags & TH_FIN ? "FIN," :"");
+	printf("%s", flags & TH_RST ? "RST," :"");
+	printf("%s", flags & TH_PUSH ? "PUSH," :"");
+	printf("%s", flags & TH_URG ? "URG," :"");
+	printf("%s", flags & TH_ECE ? "ECE," :"");
+	printf("%s", flags & TH_CWR ? "CWR" :"");
+	printf("%s", flags != 0 ? ">" : "");
+
+	printf("\n");
+	printf("\trcv_(nxt,wnd,up) (%x,%x,%x) snd_(una,nxt,max) (%x,%x,%x)\n",
+	       args[0]->tcps_rnxt, args[0]->tcps_rwnd, args[0]->tcps_rup,
+	       args[0]->tcps_suna, args[0]->tcps_snxt, args[0]->tcps_smax);
+	printf("\tsnd_(wl1,wl2,wnd) (%x,%x,%x)\n",
+	       args[0]->tcps_swl1, args[0]->tcps_swl2, args[0]->tcps_swnd);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How Much Work is That?}
+  \begin{itemize}
+  \item $200$ line code change
+  \item $167$ lines of example code
+  \item A few hours to code
+  \item A day or two to test
+  \item Now we have always on TCP debugging
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lab Exercise: Adding Kernel Tracepoints}
+  
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
