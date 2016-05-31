@@ -1,0 +1,215 @@
+% This syllabus template was created by:
+% Brian R. Hall
+% Assistant Professor, Champlain College
+% www.brianrhall.net
+
+% Document settings
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage{multirow}
+\usepackage{setspace}
+\pagestyle{plain}
+\setlength\parindent{0pt}
+
+\begin{document}
+
+% Course information
+\begin{tabular}{ l l }
+%  \multirow{3}{*}{\includegraphics[height=1.25in,width=1in]{logo_blank.png}} & \LARGE Unknown \\\\
+  & \LARGE Introduction to Operating Systems with Tracing \\\\
+  & \LARGE Day(s), Time, Place \\\\
+\end{tabular}
+\vspace{10mm}
+
+% Professor information
+\begin{tabular}{ l l }
+%  \multirow{6}{*}{\includegraphics[height=1.25in,width=1in]{pic_blank.png}}
+  & \large George V. Neville-Neil \\\\
+  & \large gnn@neville-neil.com \\
+  & \large www.neville-neil.com \\
+\end{tabular}
+\vspace{5mm}
+\begin{center} Syllabus, subject to modification. \\
+\end{center}
+
+% Course details
+\textbf {\large \\ Course Description:} Using the DTrace system
+students explore the various sub-systems of a modern operating system,
+including the scheduler, memory management, networking and storage.
+Each class introduces a new topic from a basic theoretical standpoint,
+and then works through several practical examples in which
+applications interact with the operating system.  Students will write
+scripts during their lab and homework sessions to investigate and
+answer questions about how each subsystem is reacting when presented
+with common applications, such as a web server or database.  The use
+of tracing allows us to cover a broad range of topics in a single
+week.
+\\
+\textbf {Prerequisite(s):} None.
+
+\textbf {Note(s):} A minimum grade of C is required in this course to progress to COURSE. 
+
+\textbf {Credit Hours:} 3 \\
+
+\textbf {\large Text(s):}
+
+\begin{itemize}
+\item Marshall Kirk McKusick, George V. Neville-Neil, and Robert
+  N. M. Watson\emph{The Design and Implementation of the FreeBSD
+    Operating System}, 2\textsuperscript{nd} Edition. Prentice Hall
+  Press, Upper Saddle River, NJ, USA, April 2011.
+\item Brendan Gregg and Jim Mauro. \emph{DTrace: Dynamic Tracing in
+    Oracle Solaris, Mac OS X and FreeBSD}, Prentice Hall Press, Upper
+  Saddle River, NJ, USA, April 2011.
+\item Brendan Gregg. \emph{Systems Performance: Enterprise and the
+    Cloud}, 1st Edition, Prentice Hall, October 2013
+\end{itemize}
+
+\textbf {\large Course Objectives:} \\
+At the completion of this course, students will be able to:
+\begin{enumerate} \itemsep-0.4em
+  \item Understand basic operating systems concepts
+  \item Explore large and complex systems with tracing
+  \item Explain complex behaviors found in modern software systems
+\end{enumerate}
+
+% I recommend using \newpage here if necessary
+% \textbf {\large Grade Distribution:} \\
+% \hspace*{40mm}
+% \begin{tabular}{ l l }
+% Labs & 20\% \\
+% Assignments & 20\% \\
+% Project & 10\% \\
+% Quizzes  & 10\% \\
+% Midterm Exam  & 20\% \\
+% Final Exam  & 20\%
+% \end{tabular} \\\\
+
+% \textbf {\large Letter Grade Distribution:} \\\\
+% \hspace*{40mm}
+% \begin{tabular}{ l l | l l }
+% \textgreater= 93.00 & A & 73.00 - 76.99 & C \\
+% 90.00 - 92.99 & A-  & 70.00 - 72.99 & C- \\
+% 87.00 - 89.99 & B+  & 67.00 - 69.99 & D+ \\
+% 83.00 - 86.99 & B  & 63.00 - 66.99 & D \\
+% 80.00 - 82.99 & B-  & 60.00 - 62.99 & D- \\
+% 77.00 - 79.99 & C+  & \textless= 59.99 & F \\
+% \end{tabular} \\
+
+% Course Policies. These are just examples, modify to your liking.
+\textbf {\large Course Policies:}
+\begin{itemize}
+% \item \textbf {General}
+%   \begin{itemize}
+%   \item Computers are not to be used unless instructed to do so.
+%   \item Quizzes and exams are closed book, closed notes.
+%   \item \textbf {No makeup quizzes or exams will be given.}
+%   \end{itemize}
+% \item \textbf {Grades}
+%   \begin{itemize}
+%   \item Grades in the \textbf{C} range represent performance that \textbf{meets expectations}; Grades in the \textbf{B} range represent performance that is \textbf{substantially better} than the expectations; Grades in the \textbf{A} range represent work that is \textbf{excellent}.
+%   \item Grades will be maintained in the LMS course shell. Students are responsible for tracking their progress by referring to the online gradebook.
+%   \end{itemize}
+\item \textbf {Labs and Assignments}
+  \begin{itemize}
+  \item Students are expected to work independently. \textbf{Offering}
+    and \textbf{accepting} solutions from others is an act of
+    \textbf{plagiarism}, which is a serious offense and \textbf{all
+      involved parties will be penalized according to the Academic
+      Honesty Policy}. Discussion amongst students is encouraged, but
+    when in doubt, direct your questions to the professor, tutor, or
+    lab assistant.
+  \item \textbf{No late assignments will be accepted under any circumstances}.
+  \end{itemize}
+% \item \textbf{Attendance and Absences}
+%   \begin{itemize}
+%   \item Attendance is expected and will be taken each class. You are
+%     allowed to miss \textbf{1} class during the semester without
+%     penalty. Any further absences will result in point and/or grade
+%     deductions.
+%   \item Students are responsible for all missed work, regardless of
+%     the reason for absence. It is also the absentee's responsibility
+%     to get all missing notes or materials.
+  \end{itemize}
+\end{itemize}
+
+% College Policies
+%\textbf {\large Academic Honesty Policy Summary:} 
+% This should be specific to your instituition, an example is provided.
+
+\newpage
+
+% Course Outline
+\textbf {\large Course Outline}:
+
+The coverage might change as it depends on the progress of the class.
+However, you must keep up with the reading assignments.
+
+\begin{table}[h!]
+\normalsize % The size of the table text can be changed depending on content. Remove if desired.
+\begin{tabular}{ | c | c | }
+\hline
+\textbf{Class} & \textbf{Content} \\
+\hline
+Class 1 & \begin{minipage}{.85\textwidth}
+\begin{itemize} \itemsep-0.4em
+	\vspace{1mm}
+	\item Course Overview
+	\item Example System
+        \item Introduction to Tracing
+        \item Lab 1: Getting started with Tracing and the OS
+	\vspace{1mm}
+\end{itemize}
+\end{minipage} \\
+\hline
+Class 2 & \begin{minipage}{.85\textwidth}
+\begin{itemize} \itemsep-0.4em
+	\vspace{1mm}
+	\item Processing Information
+	\item The Process Model
+        \item Programs and the Illusion of Memory
+        \item Lab 2: Tracing Processes
+	\vspace{1mm}
+\end{itemize}
+\end{minipage} \\
+\hline
+Class 3 & \begin{minipage}{.85\textwidth}
+\begin{itemize} \itemsep-0.4em
+	\vspace{1mm}
+	\item Storing Information
+	\item Files, Naming, and the Filesystem
+        \item Lab 3: Where is my data?
+	\vspace{1mm}
+\end{itemize}
+\end{minipage} \\
+\hline
+Class 4 & \begin{minipage}{.85\textwidth}
+\begin{itemize} \itemsep-0.4em
+	\vspace{1mm}
+	\item Communication
+	\item Inter-Process Communication
+        \item How Computers Talk to Each Other
+        \item Lab 4: 
+	\vspace{1mm}
+\end{itemize}
+\end{minipage} \\
+\hline
+Class 5 & \begin{minipage}{.85\textwidth}
+\begin{itemize} \itemsep-0.4em
+	\vspace{1mm}
+	\item Whole System Interactions
+	\item Final Exam
+	\vspace{1mm}
+\end{itemize}
+\end{minipage} \\
+\hline
+\end{tabular} 
+\end{table}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
