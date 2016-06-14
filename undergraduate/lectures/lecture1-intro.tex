@@ -1,10 +1,8 @@
 % Included from both -slides and -handout versions.
+\documentclass[pdftex]{beamer} % used to trigger beamer mode in Emacs,
+                               % normally commented out.
 
-\mode<presentation>
-{
-  \usetheme{default}
-  \useoutertheme{infolines}
-}
+\usetheme{metropolis}
 
 \usepackage[english]{babel}
 \usepackage[latin1]{inputenc}
@@ -30,8 +28,117 @@
 
 \section{Course Overview}
 
+\begin{frame}
+  \frametitle{Course Goals}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Course Outline}
+  \begin{description}
+  \item[Monday] 
+  \item[Tuesday]
+  \item[Wednesday] 
+  \item[Thursday] 
+  \item[Friday] 
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lab Work}
+  \begin{description}
+  \item []
+  \end{description}
+\end{frame}
+
 \section{Example System}
 \label{sec:example-system}
+
+\begin{frame}
+  \frametitle{Our Challenge}
+  \begin{itemize}
+  \item How does data move in a real world system?
+  \item Serving Data from Storage to Clients
+    \begin{description}
+    \item[Program] Web Server
+    \item[Stored Data] Filesystem
+    \item[Communication] Network Stack
+    \end{description}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What do computers do?}
+  \begin{description}
+  \item[Processing] Converting information from one form to another.
+  \item[Communication] Moving information between one or more systems.
+  \item[Storage] Maintaining information over time.
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is an Operating System?}
+  \begin{center}
+    \begin{itemize}
+    \item \emph{White Boarding Exercise.}
+    \end{itemize}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What an Operating System Does}
+  \begin{itemize}
+  \item Provides the \emph{Programming Model}
+  \item Protects Programs from each other
+  \item Controls access to hardware
+  \item Ensures fair sharing of resources
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Special Considerations}
+  \begin{itemize}
+  \item An OS kernel is one, large program.
+  \item More than $50,000$ functions.
+  \item $5677$ files    
+  \item $5,131,552$ lines of C code.
+  \item A unique programming environment
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Design and Implementation Requirements}
+  \begin{description}
+  \item[Fast]
+  \item[Safe] 
+  \item[Flexible] 
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{User vs. Kernel Space}
+  \begin{columns}[t]
+    \begin{column}{5cm}
+      \emph{User Space}
+      \begin{itemize}
+      \item 
+      \end{itemize}
+    \end{column}
+    \begin{column}{5cm}
+      \emph{Kernel Space}
+      \begin{itemize}
+      \item 
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{System Calls: The Operating System's API}
+  
+\end{frame}
 
 \section{Introduction to Tracing}
 \label{sec:intro-tracing}
