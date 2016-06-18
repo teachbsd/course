@@ -34,13 +34,126 @@
 \subsection{Naming of Names}
 \label{sec:naming}
 
+begin{frame}
+  \frametitle{File Systems Overview}
+  \begin{description}
+  \item[naming] Translating human names to usable objects
+  \item[storage] Store and retrieve blocks of data
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Naming}
+  \begin{itemize}
+  \item Translate a human name to something
+  \item \verb+namei+ is the main interface
+  \item All names reside in the name cache
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Name Lookup}
+  \begin{itemize}
+  \item What names are being looked up?
+  \end{itemize}
+\begin{lstlisting}
+dtrace -n 'vfs:namei:lookup:entry { printf("%s", stringof(arg1));}'
+CPU     ID                    FUNCTION:NAME
+  2  27847                     lookup:entry /bin/ls
+  2  27847                     lookup:entry /libexec/ld-elf.so.1
+  2  27847                     lookup:entry /etc
+  2  27847                     lookup:entry /etc/libmap.conf
+  2  27847                     lookup:entry /etc/libmap.conf
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Name Cache}
+  \begin{itemize}
+  \item Speeds up searching
+  \item Maintains positive and negative results
+  \item Invalidation on changes in directories
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Who is missing the cache?}
+\begin{lstlisting}
+dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Name Cache Module}
+  \begin{description}
+  \item[enter] Add a positive entry
+  \item[enter\_negative] Add a negative entry
+  \item[lookup:hit] Name found in positive cache
+  \item[lookup:hit-negative] Name found in negative cache
+  \item[lookup:miss] Name not found in cache
+  \item[purge] Remove positive entry
+  \item[purge\_negative] Remove negative entry
+  \item[zap] Remove positive entry with or without vnode
+  \item[zap\_negative] Remove negative entry with or without vnode
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Adding negative entries}
+\begin{lstlisting}
+ dtrace -n 'vfs:namecache:enter_negative: { printf("%s", stringof(arg1)); }'
+\end{lstlisting}
+\end{frame}
+
+
 \subsection{Organizing Data}
 \label{sec:organization}
+
+\begin{frame}[fragile]
+  \frametitle{VNODE Operations}
+  \begin{itemize}
+  \item After a path or name is looked up
+  \item Do something with a vnode
+  \item \verb|open|, \verb|close|, \verb|read|, \verb|write|
+  \end{itemize}
+\end{frame}
 
 \subsection{Data on Disk}
 \label{sec:disk}
 
+begin{frame}
+  \frametitle{GEOM Oveview}
+  \begin{itemize}
+  \item Framework for transforming storage requests
+  \item Object Oriented
+  \item Shuttles I/O requests between filesystems and devices
+  \end{itemize}
+\end{frame}
 
+\begin{frame}
+  \frametitle{GEOM Layers}
+  \begin{description}
+  \item[MBR] Master Boot Record
+  \item[BSD] BSD Slice
+  \item[ELI] Encryption
+  \item[MIRROR] Disk mirroring
+  \item[JOURNAL] Journaling
+  \item[RAID] Software RAID
+\end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Visual Example}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Performing I/O}
+sudo dtrace -n ::g\_io\*:entry  
+
+This gets us the most likely 8 routines we care about.
+
+\end{frame}
 
 \end{document}
 %%% Local Variables:
