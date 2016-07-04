@@ -1,0 +1,41 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{Lab 2: Processes}
+\author[shortname]{George V. Neville-Neil}
+
+\begin{frame}
+  \frametitle{Setup}
+  \begin{enumerate}
+  \item Boot the virtual machine
+  \item Load DTrace as in Lab 1
+  \item 
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Process Lab Exercises}
+  \begin{itemize}
+  \item What happens for each signal sent to \verb+yes+
+  \item Extend newproc script to show program arguments
+  \item Write a script to show the entire process life cycle from creation
+    to exit
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

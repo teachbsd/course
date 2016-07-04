@@ -1,0 +1,53 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{Lab 3: Communication}
+\author[shortname]{George V. Neville-Neil}
+
+\begin{frame}[fragile]
+  \frametitle{Setup}
+  \begin{enumerate}
+  \item Boot the system
+  \item Log in as root
+  \item Load DTrace as in Lab 1
+  \item Start nginx
+    \begin{itemize}
+    \item \verb|/usr/local/etc/rc.d/nginx forcestart|
+    \end{itemize}
+  \item Make sure nginx is running
+    \begin{itemize}
+    \item \verb|ps -auxwwww | grep nginx|
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Socket Lab Exercises}
+  \begin{itemize}
+  \item Count number of sockets opened when index.html is loaded.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP Lab Exercises}
+  \begin{itemize}
+  \item Trace the socket state transitions when index.html is loaded.
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
