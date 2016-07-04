@@ -38,11 +38,55 @@
 \begin{frame}
   \frametitle{Course Outline}
   \begin{description}
-  \item[Monday] 
-  \item[Tuesday]
-  \item[Wednesday] 
-  \item[Thursday] 
-  \item[Friday] 
+  \item[Monday] Overview and Introdcution
+    \begin{itemize}
+    \item High Level Definitions
+    \item History
+    \item Introduction to Tracing
+    \item Lab 1: System Setup and First Traces
+    \end{itemize}
+  \item[Tuesday] Processing Data
+    \begin{itemize}
+    \item Quiz
+    \item Processes 
+    \item Memory
+    \item I/O
+    \item Lab 2: Tracking Processes
+    \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Course Outline}
+  \begin{description}
+  \item[Wednesday] Communication
+    \begin{itemize}
+    \item I/O Continued
+    \item Inter Process Communication
+    \item Sockets and Network Communication
+    \item Lab 3: TCP Connection Setup
+    \end{itemize}
+  \item[Thursday] Storing Data
+    \begin{itemize}
+    \item Storage Overview
+    \item Naming and Location
+    \item Virtual Filesystem Layer
+    \item Storing and Retrieving Data
+    \item Lab 4: Reading a file from disk
+    \end{itemize}
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Course Outline}
+  \begin{description}
+  \item[Friday] Whole System View
+    \begin{itemize}
+    \item Serving Web Content
+    \item NGINX
+    \item Review
+    \item Final Exam
+    \end{itemize}
   \end{description}
 \end{frame}
 
@@ -133,13 +177,18 @@
     \begin{column}{5cm}
       \emph{User Space}
       \begin{itemize}
-      \item 
+      \item User Programs
+      \item Libraries
+      \item All memory is \emph{virtual}
+      \item A world of illusions
       \end{itemize}
     \end{column}
     \begin{column}{5cm}
       \emph{Kernel Space}
       \begin{itemize}
-      \item 
+      \item Device Drivers
+      \item Physical Memory
+      \item Cold reality
       \end{itemize}
     \end{column}
   \end{columns}
@@ -153,7 +202,7 @@
 \section{Introduction to Tracing}
 \label{sec:intro-tracing}
 
-\begin{frame}
+\begin{frame}[fragile]
 	\frametitle{History of Debugging}
 	\begin{itemize}
 	\item Blinking lights
