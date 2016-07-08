@@ -1,4 +1,6 @@
 % Included from both -slides and -handout versions.
+\documentclass[pdftex]{beamer} % used to trigger beamer mode in Emacs,
+                               % normally commented out.
 \usetheme{metropolis}
 
 \usepackage[english]{babel}
@@ -26,12 +28,72 @@
 \section{Processes}
 \label{sec:processes}
 
+\begin{frame}
+  \frametitle{The process model}
+
+  \begin{enumerate}
+    \item The process model and its evolution
+    \item An introduction to virtual memory
+    \item Where do programs come from?
+    \item Traps and system calls
+    \item Reading for next time
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Review: What is an Operating System?}
+  \begin{itemize}
+  \item Provider of useful abstractions
+  \item Generic interface to varied hardware resources
+  \item Controller of resources
+  \item Provider of basic security
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Before Processes and Virtual Memory}
+  \begin{itemize}
+  \item All code in a single address space
+  \item No memory protection
+  \item Each program must cooperate with all others
+  \item Core wars
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is a process?}
+  \begin{itemize}
+  \item Container for code
+  \item Protective shell between competing programs
+  \item \emph{The} defining abstraction on which all modern computing rests
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Process Contents}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Process Lifecycle}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Scheduling}
+  
+\end{frame}
+
+
 \section{The Illusion of Memory}
 \label{sec:memory}
 
 \end{document}
 
+
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "lecture1-intro"
+%%% TeX-master: t
 %%% End:
