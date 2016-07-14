@@ -1,4 +1,7 @@
 % Included from both -slides and -handout versions.
+\documentclass[pdftex]{beamer} % used to trigger beamer mode in Emacs,
+                               % normally commented out.
+
 \usetheme{metropolis}
 
 \usepackage[english]{babel}
@@ -29,7 +32,7 @@
 \subsection{Naming of Names}
 \label{sec:naming}
 
-begin{frame}
+\begin{frame}
   \frametitle{File Systems Overview}
   \begin{description}
   \item[naming] Translating human names to usable objects
@@ -116,7 +119,7 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 \subsection{Data on Disk}
 \label{sec:disk}
 
-begin{frame}
+\begin{frame}
   \frametitle{GEOM Oveview}
   \begin{itemize}
   \item Framework for transforming storage requests
@@ -153,5 +156,5 @@ This gets us the most likely 8 routines we care about.
 \end{document}
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "lecture1-intro"
+%%% TeX-master: "lecture4-storage"
 %%% End:
