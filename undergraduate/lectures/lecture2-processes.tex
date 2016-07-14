@@ -90,6 +90,93 @@
 \section{The Illusion of Memory}
 \label{sec:memory}
 
+\begin{frame}
+  \frametitle{The Illusion of Memory}
+  \begin{itemize}
+  \item How much memory can one process have?
+  \item Early UNIX VM systems built on 32 bit hardware.
+    \pause
+    \begin{itemize}
+    \item $4,294,967,296$ bytes
+    \end{itemize}
+    \pause
+  \item Modern systems based on 64 bits.
+    \begin{itemize}
+    \item $18,446,744,073,709,551,615$ bytes
+    \end{itemize}
+  \item How does the OS manage this illusion?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Purpose of Virtual Memory}
+  \begin{description}[labelwidth=\widthof{Simplification}]
+  \item [Simplification] Programs (mostly) don't care about addresses.
+  \item [Portability] No memory location is more special than any other.
+  \item [Protection] All memory accesses go via the kernel.
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Programs in their Virtual Memory Spaces}
+
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{../../figures/process-address-space.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How does the VM trick work?}
+
+  \begin{itemize}
+
+    \pause
+
+    \item Memory Management Unit (MMU)
+    \begin{itemize}
+      \item Transforms \textit{virtual addresses} into \textit{physical addresses}
+      \item Memory is laid out in \textit{pages} (4K, 2M, 1G...)
+      \item Control available only to the supervisor
+      \item Software handles failures (e.g., permissions) via traps
+    \end{itemize}
+
+    \medskip
+    \pause
+
+    \item Page tables
+    \begin{itemize}
+      \item SW-managed \textit{page tables} provide \textit{virtual-physical
+	mappings}
+      \item Access permissions, page attributes (e.g., caching)
+      \item Various configurations + traps implement BSS, COW, sharing, ...
+    \end{itemize}
+
+    \medskip
+    \pause
+
+    \item The Translation Look-aside Buffer (TLB)
+    \begin{itemize}
+      \item Hardware cache of entries -- avoid walking pagetables
+      \item Content Addressable Memory (CAM); 48? 1024? entries
+      \item TLB \textit{tags}: entries \textit{global} or for a specific process
+      \item Software- vs. hardware-managed TLBs
+    \end{itemize}
+
+    \medskip
+    \pause
+
+%    \item Virtual address spaces
+%    \begin{itemize}
+%      \item Isolation vs. sharing
+%      \item \textit{BSS}, \textit{Copy-on-Write}, \textit{Superpages}
+%    \end{itemize}
+%
+%    \pause
+
+  \end{itemize}
+\end{frame}
+
+
 \end{document}
 
 
