@@ -145,8 +145,18 @@
   \frametitle{How does the VM trick work?}
 
   \begin{itemize}
+  \item Virtual address spaces
+    \begin{itemize}
+    \item Isolation vs. sharing
+    \item \textit{BSS}, \textit{Copy-on-Write}, \textit{Superpages}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
 
-    \pause
+\begin{frame}
+  \frametitle{How does the VM trick work?}
+
+  \begin{itemize}
 
     \item Memory Management Unit (MMU)
     \begin{itemize}
@@ -155,9 +165,13 @@
       \item Control available only to the supervisor
       \item Software handles failures (e.g., permissions) via traps
     \end{itemize}
+  \end{itemize}
+\end{frame}
 
-    \medskip
-    \pause
+\begin{frame}
+  \frametitle{How does the VM trick work?}
+
+  \begin{itemize}
 
     \item Page tables
     \begin{itemize}
@@ -167,9 +181,13 @@
       \item Various configurations + traps implement BSS, COW, sharing, ...
     \end{itemize}
 
-    \medskip
-    \pause
+  \end{itemize}
+\end{frame}
 
+\begin{frame}
+  \frametitle{How does the VM trick work?}
+
+  \begin{itemize}
     \item The Translation Look-aside Buffer (TLB)
     \begin{itemize}
       \item Hardware cache of entries -- avoid walking pagetables
@@ -178,17 +196,15 @@
       \item Software- vs. hardware-managed TLBs
     \end{itemize}
 
-    \medskip
-    \pause
+  \end{itemize}
+\end{frame}
 
-%    \item Virtual address spaces
-%    \begin{itemize}
-%      \item Isolation vs. sharing
-%      \item \textit{BSS}, \textit{Copy-on-Write}, \textit{Superpages}
-%    \end{itemize}
-%
-%    \pause
-
+\begin{frame}
+  \frametitle{Making Virtual Memory Work}
+  \begin{itemize}
+  \item Memory Management Unit (MMU)
+  \item Page Tables
+  \item Translation Look-aside Buffer (TLB)
   \end{itemize}
 \end{frame}
 
