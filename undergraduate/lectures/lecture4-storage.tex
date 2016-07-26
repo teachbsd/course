@@ -29,6 +29,84 @@
 \section{Storing Information}
 \label{sec:storage}
 
+\begin{frame}
+  \frametitle{What is a Filesystem?}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is a file?}
+  \begin{itemize}
+  \item The lowest level of user visible storage.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is a directory?}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{How do programs access stored data?}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hard and Soft Links}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Filesystems of FreeBSD}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Important Parameters}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interactions with Other Subsystems}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{open() a walkthrough}
+  \begin{itemize}
+  \item What happens when a user opens a file named ``foo''
+  \item The open() system call is executed.
+  \item The file name is looked up.
+  \item The user's permissions are checked against the file's
+    permissions.
+  \item Notations are made in the kernel to inicate the file is open.
+  \item A per-process file descriptor is allocated and returned to the
+    caller.
+  \item No data is moved from secondary storage until later.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What does close() do?}
+  \begin{itemize}
+  \item Remove the file descriptor from the process.
+    \begin{itemize}
+    \item It can now be reused!
+    \end{itemize}
+  \item Tells the kernel it can free resources.
+    \begin{itemize}
+    \item But only if absolutely necessary.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving Data}
+  
+\end{frame}
+
 \subsection{Naming of Names}
 \label{sec:naming}
 
@@ -107,6 +185,11 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 \subsection{Organizing Data}
 \label{sec:organization}
 
+\begin{frame}
+  \frametitle{The VNODE Data Structure}
+  
+\end{frame}
+
 \begin{frame}[fragile]
   \frametitle{VNODE Operations}
   \begin{itemize}
@@ -152,6 +235,15 @@ sudo dtrace -n ::g\_io\*:entry
 This gets us the most likely 8 routines we care about.
 
 \end{frame}
+
+\subsection{Storing Data Remotely}
+\label{sec:remote_storage}
+
+\begin{frame}
+  \frametitle{NFS: The Network Filesystem}
+  
+\end{frame}
+
 
 \end{document}
 %%% Local Variables:
