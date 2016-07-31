@@ -71,14 +71,37 @@
 
 \begin{frame}
   \frametitle{Process Contents}
-  \begin{itemize}
-  \item 
-  \end{itemize}
+\begin{columns}[t]
+    \begin{column}{5cm}
+      \begin{itemize}
+      \item Open Files
+      \item Process Statistics
+      \item Resource Limits
+      \item Signal Actions
+      \item Process Identifier (PID)
+      \item Lists of related processes
+      \item Many Locks and Mutexes
+      \end{itemize}
+    \end{column}
+    \begin{column}{5cm}
+      \begin{itemize}
+      \item Address Space
+      \item Alarms and Timers
+      \item Resource Usage
+      \item Threads
+      \item Debugging 
+      \item Security
+      \item $112$ total fields
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{Process Lifecycle}
-  
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{../../figures/process-life-cycle.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}
@@ -103,6 +126,10 @@
     \begin{itemize}
     \item Pretty much everything else
     \end{itemize}
+  \item Caches
+    \begin{itemize}
+    \item L1, L2, L3, etc.
+    \end{itemize}
   \end{itemize}
 \end{frame}
 
@@ -122,6 +149,53 @@
     \end{itemize}
   \item How does the OS manage this illusion?
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A brief history of memory}
+  \begin{itemize}
+  \item Delay Line
+  \item Core
+  \item Dynamic RAM
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Core}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{../../figures/KL_CoreMemory.jpg}
+  \end{center}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Core Close Up}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{../../figures/KL_Kernspeicher_Makro_1.jpg}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A World Without Virtual Memory}
+  \begin{itemize}
+  \item Single Address Space Systems
+  \item Embedded and Real Time Operating Systems (RTOS)
+  \item These still exist
+    \pause
+    \begin{itemize}
+    \item There are several on Mars
+      \pause
+    \item There are even more in automotive braking systems
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{But that's ridiculous!}
+    \begin{center}
+    \includegraphics[width=0.8\textwidth]{../../figures/pathfinder.jpg}
+  \end{center}
+
 \end{frame}
 
 \begin{frame}
@@ -206,6 +280,11 @@
   \item Page Tables
   \item Translation Look-aside Buffer (TLB)
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Observing Virtual Memory}
+  
 \end{frame}
 
 
