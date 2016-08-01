@@ -149,6 +149,34 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Networking: The ISO Model}
+  \begin{itemize}
+  \item Canonical description of network protocols
+  \item Each protocols are layered
+  \item Seven layers in all
+  \item Beware Van Jacobsen's warning!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Networking and Layering}
+\centering
+\includegraphics[width=0.4\textwidth]{../../figures/ISO-layers.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Networking and Layering}
+\centering
+\includegraphics[width=0.7\textwidth]{../../figures/ISO-layers-mapped.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Networking and Layering}
+\centering
+\includegraphics[width=0.8\textwidth]{../../figures/ISO-layers-http.pdf}
+\end{frame}
+
+\begin{frame}
   \frametitle{The User Program View}
   \begin{itemize}
   \item User programs use sockets
@@ -166,35 +194,10 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Looking Directly at Sockets}
-\begin{verbatim}
-# Count sockets by family
-
-# Count sockets by type
-
-# Count sockets by protocol
-\end{verbatim}  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Network Lab (Sockets Exercises)}
-  \begin{itemize}
-  \item Count socket calls by domain, type and protocol
-  \item Show programs accepting connections
-  \item Show programs initiating connections
-  \item Write a D script to trace a single socket with the test program
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Network Stack}
-\end{frame}
-
 \begin{frame}
   \frametitle{Network Stack Overview}
 \centering
-\includegraphics{../../figures/network-in-out.pdf}
+\includegraphics[width=0.8\textwidth]{../../figures/network-in-out.pdf}
 \end{frame}
 
 \begin{frame}[fragile]
