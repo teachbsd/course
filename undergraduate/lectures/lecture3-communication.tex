@@ -221,12 +221,62 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Three Way Handshake}
+  \begin{itemize}
+  \item Initiating a connection between two nodes
+  \end{itemize}
+  \begin{enumerate}
+  \item Start a connection with a Synchronize (SYN) packet.
+  \item Acknowledge the first SYN and initiate a full connection (SYN/ACK)
+  \item Acknowledge the second SYN.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Starting a Connection}
+  \begin{itemize}
+\centering
+\includegraphics[width=0.9\textwidth]{../../figures/tcp-three-way.pdf}
+  \end{itemize}
+\end{frame}
+
 \begin{frame}[fragile]
   \frametitle{TCP State Machine}
   \begin{itemize}
 \centering
 \includegraphics[width=0.6\textwidth]{../../figures/tcp-timeline.pdf}
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP States}
+  \begin{description}[labelwidth=\widthof{SYN RECEIVED}]
+  \item[CLOSED]
+  \item[SYN SENT] Client initiated a connection.
+  \item[SYN RECEIVED] Server received initiation from client.
+  \item[ESTABLISHED] Client and server can communicate.
+  \item[FIN WAIT 1] 
+  \item[FIN WAIT 2]
+  \item[TIME WAIT]
+  \item[CLOSE WAIT]
+  \item[LAST ACK]  Awaiting client's final acknowledgment
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Four Way Close}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP Data Flow}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Sliding Window}
+  
 \end{frame}
 
 \end{document}
