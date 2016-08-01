@@ -80,7 +80,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Singal Handling}
+  \frametitle{Signal Handling}
   \begin{itemize}
   \item Source raises a signal
   \item destination catches the signal 
@@ -88,48 +88,35 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Available Signals}
-  \begin{tabular}
-  |Name|Meaning|
+\resizebox{1.0\textwidth}{!}{%
+  \begin{tabular}{l|l|l|l}
+  Name & Meaning & Name & Meaning \\
   \hline
-  |SIGHUP	|terminal line hangup|
-     2	   |SIGINT	terminate process    interrupt program|
-  | SIGQUIT	create core image    quit program|
-  |SIGILL	create core image    illegal instruction|
-  |SIGTRAP	create core image    trace trap|
-     6	   SIGABRT	create core image    abort program (formerly SIGIOT)|
-     7	   SIGEMT	create core image    emulate instruction executed|
-     8	   SIGFPE	create core image    floating-point exception|
-     9	   SIGKILL	terminate process    kill program|
-     10	   SIGBUS	create core image    bus error|
-     11	   SIGSEGV	create core image    segmentation violation|
-     12	   SIGSYS	create core image    non-existent system call invoked|
-     13	   SIGPIPE	terminate process    write on a	pipe with no reader|
-     14	   SIGALRM	terminate process    real-time timer expired|
-     15	   SIGTERM	terminate process    software termination signal|
-     16	   SIGURG	discard	signal	     urgent condition present on  socket|
-     17	   SIGSTOP	stop process	     stop (cannot be caught or ignored)|
-     18	   SIGTSTP	stop process	     stop signal generated from  keyboard|
-     19	   SIGCONT	discard	signal	     continue after stop|
-     20	   SIGCHLD	discard	signal	     child status has changed|
-     21	   SIGTTIN	stop process	     background	read attempted from control terminal|
-     22	   SIGTTOU	stop process	     background	write attempted	to control terminal|
-     23	   SIGIO	discard	signal	     I/O is possible on	a descriptor|
-     24	   SIGXCPU	terminate process    cpu time limit exceeded|
-     25	   SIGXFSZ	terminate process    file size limit exceeded|
-     26	   SIGVTALRM	terminate process    virtual time alarm|
-     27	   SIGPROF	terminate process    profiling timer alarm|
-     28	   SIGWINCH	discard	signal	     Window size change|
-     29	   SIGINFO	discard	signal	     status request from keyboard|
-     30	   SIGUSR1	terminate process    User defined signal 1|
-     31	   SIGUSR2	terminate process    User defined signal 2|
-     32	   SIGTHR	terminate process    thread interrupt
-     33	   SIGLIBRT	terminate process    real-time library interrupt|
+    SIGHUP & line hangup & SIGURG & urgent condition present on  socket \\
+    SIGINT & interrupt program & SIGSTOP & stop (cannot be caught or ignored) \\
+    SIGQUIT & quit program & SIGTSTP & stop signal generated from  keyboard \\
+    SIGILL & illegal instruction & SIGCONT & continue after stop \\
+    SIGTRAP & trace trap & SIGCHLD & child status has changed \\
+    SIGABRT & abort program & SIGTTIN & background read attempted from control terminal \\
+    SIGEMT & emulate instruction executed &  SIGTTOU & background write attempted to control terminal \\
+    SIGFPE & floating-point exception & SIGIO & I/O is possible on	a descriptor \\
+    SIGKILL & kill program & SIGXCPU & cpu time limit exceeded \\
+    SIGBUS & bus error & SIGXFSZ & file size limit exceeded \\
+    SIGSEGV & segmentation violation & SIGVTALRM & virtual time alarm \\
+    SIGSYS & non-existent system call invoked & SIGPROF & profiling timer alarm \\
+    SIGPIPE & write on a pipe with no reader & SIGWINCH & Window size change \\
+    SIGALRM & eal-time timer expired & SIGINFO & status request from keyboard \\
+    SIGTERM & software termination signal & SIGUSR1 & User defined signal 1 \\
+    & & SIGUSR2 & User defined signal 2 \\
+    & & SIGTHR & thread interrupt \\
+    & & SIGLIBRT & real-time library interrupt
   \end{tabular}
+}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Pipes}
   \begin{itemize}
   \item Easliest bulk data IPC
@@ -148,83 +135,10 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
-\end{frame}
-
-
 \section{Internetworked Communication}
 \label{sec:internet}
 
-begin{frame}
+\begin{frame}
   \frametitle{Networking and FreeBSD}
   \begin{itemize}
   \item Everyone's TCP/IP Stack
@@ -280,13 +194,7 @@ begin{frame}
 \begin{frame}
   \frametitle{Network Stack Overview}
 \centering
-\includegraphics{../figures/tcpipstack}
-\end{frame}
-
-\begin{frame}
-\centering
-  \frametitle{Inbound Layer Transitions}
-\includegraphics[width=0.5\textwidth]{../figures/inbound}
+\includegraphics{../../figures/network-in-out.pdf}
 \end{frame}
 
 \begin{frame}[fragile]
