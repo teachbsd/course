@@ -235,18 +235,8 @@
 
 \begin{frame}[fragile]
   \frametitle{Starting a Connection}
-  \begin{itemize}
 \centering
 \includegraphics[width=0.9\textwidth]{../../figures/tcp-three-way.pdf}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{TCP State Machine}
-  \begin{itemize}
-\centering
-\includegraphics[width=0.6\textwidth]{../../figures/tcp-timeline.pdf}
-  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -265,11 +255,6 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Four Way Close}
-  
-\end{frame}
-
-\begin{frame}
   \frametitle{TCP Data Flow}
   
 \end{frame}
@@ -277,6 +262,44 @@
 \begin{frame}
   \frametitle{The Sliding Window}
   
+\end{frame}
+
+\begin{frame}
+  \frametitle{Four Way Close}
+  \begin{itemize}
+  \item Closing a connection between two nodes
+  \item Each node must close its side of the connection
+  \item More complicated than opening a connection.
+  \end{itemize}
+  \begin{enumerate}
+  \item Node A sends a Finalize (FIN) packet
+  \item Node B acknowledges the FIN packet.
+  \item Node B sends a Finalize (FIN) packet
+  \item Node A acknowledges the FIN packet.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Closing a Connection}
+\centering
+\includegraphics[width=0.9\textwidth]{../../figures/tcp-four-way-close.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP States}
+  \begin{description}[labelwidth=\widthof{SYN RECEIVED}]
+  \item[FIN WAIT 1] 
+  \item[FIN WAIT 2]
+  \item[TIME WAIT]
+  \item[CLOSE WAIT]
+  \item[LAST ACK]  Awaiting client's final acknowledgment
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP State Machine}
+\centering
+\includegraphics[width=0.6\textwidth]{../../figures/tcp-timeline.pdf}
 \end{frame}
 
 \end{document}
