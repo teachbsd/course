@@ -106,17 +106,154 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Process Lifecycle}
-  \begin{center}
-    \includegraphics[width=0.8\textwidth]{../../figures/process-life-cycle.pdf}
-  \end{center}
+  \frametitle{The UNIX process life cycle}
+
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \vspace{0.5cm}
+      \includegraphics[width=\textwidth]{../../figures/process-life-cycle.pdf}
+
+    \column{0.5\textwidth}
+    \begin{itemize}
+
+      \pause
+
+      \item \texttt{fork()}
+      \begin{itemize}
+	\item Child inherits address space and other properties
+	\item Program prepares process for new binary (e.g., \texttt{stdio})
+	\item Copy-on-Write (COW)
+      \end{itemize}
+
+      \pause
+
+      \item \texttt{execve()}
+      \begin{itemize}
+	\item Kernel replaces address space, loads new binary, starts execution
+      \end{itemize}
+
+      \pause
+
+      \item \texttt{exit()}
+      \begin{itemize}
+	\item Process can terminate self (or be terminated)
+      \end{itemize}
+
+      \pause
+
+      \item \texttt{wait4} (et al)
+      \begin{itemize}
+	\item Parent can await exit status
+      \end{itemize}
+    \end{itemize}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{Scheduling}
-  
+  \begin{itemize}
+  \item Control over CPU resources
+  \item Which process or thread can run now?
+
+  \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{What is Locking?}
+  \begin{itemize}
+  \item And why do we need it?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+      \includegraphics[width=\textwidth]{../../figures/block-signaling-1.pdf}
+\end{frame}
+
+\begin{frame}
+      \includegraphics[width=\textwidth]{../../figures/block-signaling-2.pdf}
+\end{frame}
+
+\begin{frame}
+      \includegraphics[width=\textwidth]{../../figures/block-signaling-3.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{CPUs, Cores, Threads and Locking}
+  \begin{itemize}
+  \item Past the end of frequency scaling
+  \item One CPU die has many cores
+  \item The number of cores increases year on year
+    \begin{itemize}
+    \item ARMv8 has 48 cores per die, 96 cores per system
+    \end{itemize}
+  \item The kernel may now be the largest multi-threaded program in history.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Locking Overview}
+  \begin{itemize}
+  \item Multiple hardware threads
+  \item Protection for kernel shared state
+    \begin{itemize}
+    \item The kernel's lists and hash tables
+    \end{itemize}
+  \item Locking required for multi-core systems
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is locked in the kernel?}
+  \begin{columns}[t]
+    \begin{column}{5cm}
+      \begin{itemize}
+      \item Process
+      \item File System
+      \item Name Cache
+      \item Network Sockets
+      \item Routing Tables
+      \item Interface Lists
+      \item Firewall Rules
+      \end{itemize}
+    \end{column}
+    \begin{column}{5cm}
+      \begin{itemize}
+      \item Virtual Memory System
+      \item All Device Drivers
+      \item Timers and Callouts
+      \item Terminals and Console
+      \item 
+      \item 
+      \item Any shared resource
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is a lock?}
+  \begin{itemize}
+  \item A data stucture that prevents 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Locking Strategies}
+  \begin{description}
+  \item [Giant Lock] One big lock around the kernel
+  \item [List Locks] Lock every list in the kernel.
+  \item [Structure Locks] Lock individual structures
+  \end{description}
+
+\end{frame}
+\begin{frame}
+  \frametitle{Types of Locks}
+  \begin{description}
+  \item[mutex] Most basic lock
+  \item[r/w lock] Reader/writer lock
+  \item[sx lock] Shared/exclusive lock
+  \end{description}
+\end{frame}
 
 \section{The Illusion of Memory}
 \label{sec:memory}
