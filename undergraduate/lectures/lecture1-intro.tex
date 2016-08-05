@@ -31,7 +31,9 @@
 \begin{frame}
   \frametitle{Course Goals}
   \begin{itemize}
-  \item 
+  \item A grounding in systems principles
+  \item A grand tour of the Operating System
+  \item Practical insights into how the OS works
   \end{itemize}
 \end{frame}
 
@@ -97,22 +99,7 @@
   \end{description}
 \end{frame}
 
-\section{Example System}
-\label{sec:example-system}
-
-\begin{frame}
-  \frametitle{Our Challenge}
-  \begin{itemize}
-  \item How does data move in a real world system?
-  \item Serving Data from Storage to Clients
-    \begin{description}
-    \item[Program] Web Server
-    \item[Stored Data] Filesystem
-    \item[Communication] Network Stack
-    \end{description}
-  \end{itemize}
-\end{frame}
-
+\section{Establishing our Baseline}
 \begin{frame}
   \frametitle{What do computers do?}
   \begin{description}
@@ -138,6 +125,130 @@
   \item Protects Programs from each other
   \item Controls access to hardware
   \item Ensures fair sharing of resources
+  \end{itemize}
+\end{frame}
+
+\section{History: How did we get here?}
+
+\begin{frame}
+  \frametitle{Computer History from the Operating System Perspective}
+  \begin{description}
+  \item [The Hardware Environment] Defines what is possible.
+  \item [Requirements] What are we asking the system to do?
+  \item [Services] What can the OS provide.
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{In the beginning: early computers}
+  \begin{itemize}
+  \item Wired programs
+  \item Highly specialized to only one problem
+  \item Armies of programmers tend a single machine
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The First Programmers}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Early Computers}
+  \begin{itemize}
+  \item Processing measured in hundres of Hz
+  \item Tiny memories
+  \item Limited to no input/output devices
+  \item Not much for an Operating System to do or provide
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Mainframes and Batch Processing}
+  \begin{itemize}
+  \item Standardized input/output with cards
+  \item One program at a time (batch processing)
+  \item No interactive programming
+  \item Early disks and printers
+  \item What is a byte?
+  \item The rise of computer languages.
+  \item Earliest operating systems (monitors)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Mini-computers and Time Sharing Systems}
+  \begin{itemize}
+  \item Shrinking hardware and affordable computing resources
+  \item C, the portable assembler
+  \item CTSS
+  \item MULTICS
+  \item UNIX
+  \item (D)ARPANet
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Rise of the Microcomputer}
+  \begin{itemize}
+  \item LSI shrinks hardware onto the first chip based processors
+  \item Moore's Law
+  \item Less powerful than mini-computers
+  \item 8-bitting
+  \item Single user
+  \item No networking
+  \item Operating System is a monitor and convience routines
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Workstations and Networking}
+  \begin{itemize}
+  \item VLSI provides faster and more powerful CPUs
+  \item Graphical Displays (X10 and X11)
+  \item Ethernet
+  \item TCP/IP
+  \item UNIX is the de-facto standard, sort of
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Embedded and Real Time}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Mobile Devices and the Ubiquitous Internet}
+  \begin{itemize}
+  \item Sensors
+  \item Always connected
+  \item A return to single user, but with a multi-user OS
+  \item Programming for power rather than speed
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Present Day}
+  \begin{itemize}
+  \item Multi-user Unix like systems everywhere
+  \item Continued use of C for OS development
+  \item Heterogenous environments
+  \end{itemize}
+\end{frame}
+
+\section{Example System}
+\label{sec:example-system}
+
+\begin{frame}
+  \frametitle{Our Challenge}
+  \begin{itemize}
+  \item How does data move in a real world system?
+  \item Serving Data from Storage to Clients
+    \begin{description}
+    \item[Program] Web Server
+    \item[Stored Data] Filesystem
+    \item[Communication] Network Stack
+    \end{description}
   \end{itemize}
 \end{frame}
 
