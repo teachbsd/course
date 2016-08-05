@@ -18,9 +18,8 @@
 \title{Introduction to Operating Systems}
 \subtitle{Through tracing, analysis, and experimentation}
 %\institute{University of Cambridge}
-\author{George V. Neville-Neil}
-%\author{Dr Robert N. M. Watson}
-\date{1 August 2016}
+\author{George V. Neville-Neil \& Dr Robert N. M. Watson}
+\date{8 August 2016}
 
 \begin{frame}
   \titlepage
@@ -214,7 +213,12 @@
 
 \begin{frame}
   \frametitle{Embedded and Real Time}
-  
+  \begin{itemize}
+  \item Applied kernel programming
+  \item Tasks have deadlines
+  \item Failure is not an option
+  \item Often forgo more expensive UNIX like features
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -282,6 +286,11 @@
   \end{description}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Operating System: The Unix View}
+  
+\end{frame}
+
 \begin{frame}[fragile]
   \frametitle{User vs. Kernel Space}
   \begin{columns}[t]
@@ -305,9 +314,29 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{System Calls: The Operating System's API}
-  
+  \begin{itemize}
+  \item Border between User and Kernel Space
+  \item Everything that \emph{can} be done with the OS
+  \item \verb|open()|, \verb|read()|, \verb|write()|, \verb|close()|
+  \item Over 1000 separate interfaces
+  \item Section 2 of the manual set
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{OS Programming}
+  \begin{itemize}
+  \item C is the lingua franca
+  \item Simple data structures
+    \begin{itemize}
+    \item Lists
+    \item Hash Tables
+    \end{itemize}
+  \item Hand crafted classes and objects
+  \item Programming without a net
+  \end{itemize}
 \end{frame}
 
 \section{Introduction to Tracing}
