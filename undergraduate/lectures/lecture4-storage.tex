@@ -32,20 +32,57 @@
 \begin{frame}
   \frametitle{What is a Filesystem?}
   \begin{itemize}
-  \item 
+  \item A system for organizing data
+  \item Off-line storage
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{What is a file?}
-  \begin{itemize}
-  \item The lowest level of user visible storage.
-  \end{itemize}
+  \frametitle{Some example filesystems}
+  \begin{description}
+  \item[UFS2] FreeBSD
+    \pause
+    
+  \item[EXT4] Linux
+    
+    \pause
+    
+  \item[NTFS] Windows
+
+    \pause
+
+  \item[FAT] Simplest and most common in the world
+
+    \pause
+
+  \item[ZFS] OpenSolaris/Illumos/FreeBSD
+  \end{description}
 \end{frame}
 
 \begin{frame}
-  \frametitle{What is a directory?}
-  
+  \frametitle{Filesystem Goals}
+  \begin{description}
+  \item [Fast] Storage and Retrieval of User Data
+
+    \pause
+
+  \item [Scalable] Files, Data, Disks...
+
+    \pause
+    
+  \item[Reliable] ``Destroy data once and no one trusts you again'' - McKusick
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Glossary of Filesystem Terms}
+  \begin{description}
+  \item[Block] Smallest piece of stored data
+    \pause
+  \item[File] A collection of blocks
+    \pause
+  \item [Directory] A collection of files.
+  \end{description}
 \end{frame}
 
 \begin{frame}
@@ -68,7 +105,10 @@
 
 \begin{frame}
   \frametitle{Important Parameters}
-  
+  \begin{description}
+  \item[Block Size] How many bytes in a block?
+  \item [Indirect Blocks] How many blocks can we reference?
+  \end{description}
 \end{frame}
 
 \begin{frame}

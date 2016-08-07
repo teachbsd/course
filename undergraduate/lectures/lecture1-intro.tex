@@ -50,8 +50,9 @@
     \begin{itemize}
     \item Quiz
     \item Processes 
-    \item Memory
-    \item I/O
+    \item Locking
+    \item Scheduling
+    \item Virtual Memory
     \item Lab 2: Tracking Processes
     \end{itemize}
   \end{description}
@@ -62,7 +63,7 @@
   \begin{description}
   \item[Wednesday] Communication
     \begin{itemize}
-    \item I/O Continued
+    \item I/O
     \item Inter Process Communication
     \item Sockets and Network Communication
     \item Lab 3: TCP Connection Setup
@@ -94,11 +95,30 @@
 \begin{frame}
   \frametitle{Lab Work}
   \begin{description}
-  \item []
+  \item [Tracing] Systems Setup, Begin using DTrace
+  \item [Processes] Tracing the Process Life Cycle
+  \item [Communication] Networking and TCP
+  \item [Storage] Storing and Retrieving Data
   \end{description}
 \end{frame}
 
-\section{Establishing our Baseline}
+\begin{frame}
+  \frametitle{Day Plan}
+  \begin{tabular*}{1.0\linewidth}{l|l}
+    Time & Topic \\
+    \hline
+    09:15-09:45 & \textbf{Overview} \\
+    09:45-10:00 & Break \\
+    10:00-12:00 & What is an Operating System? \\
+    12:00-13:00 & Lunch \\
+    13:00-14:15 & Introduction to DTrace and Tracing \\
+    14:15-14:30 & Break \\
+    14:30-16:30 & Lab 1 \\
+    16:30-17:00 & Lab 1 Review
+  \end{tabular*}
+\end{frame}
+
+\section{High Level Overview}
 \begin{frame}
   \frametitle{What do computers do?}
   \begin{description}
@@ -121,9 +141,29 @@
   \frametitle{What an Operating System Does}
   \begin{itemize}
   \item Provides the \emph{Programming Model}
+
+\pause
+
   \item Protects Programs from each other
+
+\pause
+
   \item Controls access to hardware
+
+\pause
+
   \item Ensures fair sharing of resources
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{What an Operating System Is}
+  \begin{itemize}
+  \item A single large program
+  \item Written in the C language
+  \item Built with \texttt{make}
+  \item More than $20,000$ files
+  \item $12,000,000$ lines of code
   \end{itemize}
 \end{frame}
 
@@ -280,9 +320,9 @@
 \begin{frame}
   \frametitle{Design and Implementation Requirements}
   \begin{description}
-  \item[Fast]
-  \item[Safe] 
-  \item[Flexible] 
+  \item[Fast] Low overhead, high performaance
+  \item[Safe] Secure, tractable
+  \item[Flexible] Can be used by many applications
   \end{description}
 \end{frame}
 
@@ -339,17 +379,27 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Review: What an Operating System Does}
+  \begin{itemize}
+  \item Provides the \emph{Programming Model}
+  \item Protects Programs from each other
+  \item Controls access to hardware
+  \item Ensures fair sharing of resources
+  \end{itemize}
+\end{frame}
+
 \section{Introduction to Tracing}
 \label{sec:intro-tracing}
 
 \begin{frame}[fragile]
-	\frametitle{History of Debugging}
-	\begin{itemize}
-	\item Blinking lights
-	\item Radio Frequency Interference
-	\item \verb|print| statements
-	\item Trace Instructions
-	\end{itemize}
+  \frametitle{History of Debugging}
+  \begin{itemize}
+  \item Blinking lights
+  \item Radio Frequency Interference (AM Radio)
+  \item \verb|print| statements
+  \item Trace Instructions
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -695,16 +745,7 @@ kernel`acpi_cpu_c1                                        965  53.6%
 \end{frame}
 
 \begin{frame}
-  \frametitle{DTrace Lab Exercises}
-  \begin{itemize}
-  \item Bring up OSCourse Virtual Machine
-  \item Find the current list of providers
-  \item Count the probes available
-  \item Trace all the system calls used by sshd
-  \item Summarize requested write() sizes by program name
-  \item Summarize return values from write() by program name
-  \item Find and modify three (3) of the DTrace one-liners
-  \end{itemize}
+  \frametitle{Into the Laboratory!}
 \end{frame}
 
 \end{document}
