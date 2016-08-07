@@ -35,9 +35,18 @@
 \begin{frame}[fragile]
   \frametitle{Storage Lab Exercises}
   \begin{itemize}
-  \item Show how index.html finds its way into the namecache
+  \item Show how index.html finds its way into the name cache
   \item Count the number of bytes read by nginx when index.html is requested.
+    \begin{itemize}
+    \item Relate the bytes read to the nuber of read calls.
+    \end{itemize}
   \item Count the number of bytes written by nginx when index.html is requested.
+    \begin{itemize}
+    \item Relate the bytes read to the nuber of write calls.
+    \end{itemize}
+  \item What happens if index.html is changed on disk via a rename or
+    source code editor?
+  \item Try to evict index.html from the name cache.
   \end{itemize}
 \end{frame}
 
