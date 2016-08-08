@@ -24,16 +24,16 @@
   \titlepage
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Day Plan}
   \begin{tabular*}{1.0\linewidth}{l|l}
     Time & Topic \\
     \hline
     09:15-09:45 & \textbf{Processes} \\
     09:45-10:00 & Break \\
-    10:00-12:00 & Locking
+    10:00-12:00 & Locking \\
     12:00-13:00 & Lunch \\
-    13:00-14:15 & Virtual Memory
+    13:00-14:15 & Virtual Memory \\
     14:15-14:30 & Break \\
     14:30-16:30 & Lab 2 \\
     16:30-17:00 & Lab 2 Review
@@ -166,6 +166,39 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Who is forking?}
+\begin{lstlisting}
+dtrace -n 'syscall::*fork:entry { @forks[execname] = count();}'
+dtrace: description 'syscall::*fork:entry ' matched 8 probes
+^C
+  csh                                                            7031
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Fork Discussion}
+  \begin{itemize}
+  \item Why do we use a wild card?
+    \begin{itemize}
+    \item \verb+syscall::*fork:entry+
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proc Provider}
+  \begin{description}
+  \item[exec] Program execution attempt
+  \item[exec-failure] Program start failed
+  \item[exec-success] Program successfully started
+  \item[exit] Program terminated
+  \item[signal-send] Send a signal
+  \item[signal-clear] Cleared a signal
+  \item[signal-discard] Signal ignored
+  \end{description}
+\end{frame}
+
 \begin{frame}
   \frametitle{Scheduling}
   \begin{itemize}
@@ -173,6 +206,63 @@
   \item Which process or thread can run now?
   \end{itemize}
 \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Scheduler}
+  \begin{itemize}
+  \item Decides which thread gets to run
+  \item The \emph{thread} is the scheduable entity
+  \item Chooses a processor/core
+  \item Can be overridden by \verb+cpuset+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Process States}
+  \begin{description}
+  \item[NEW] Being created
+  \item[RUNNABLE] Can run
+  \item[SLEEPING] Awaiting some event
+  \item[STOPPED] Debugging
+  \item[ZOMBIE] Process of dying
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Scheduling Classes}
+  \begin{description}
+  \item[ITHD] interrupt thread
+  \item[REALTIME] real-time user
+  \item[KERN] kernel threads
+  \item[TIMESHARE] normal user programs
+  \item[IDLE] run when nothing else does
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Sched Provider}
+  \begin{description}
+  \item[on-cpu] Thread moves on core
+  \item[off-cpu] Thread moves off core
+  \item[remain-cpu] Thread remains on core
+  \item[change-pri] Priority changed
+  \item[fbt:kernel:cpu\_idle:entry] Thread went idle
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Context Switching}
+  \begin{itemize}
+  \item Processes all believe they own the computer
+  \item Context switching maintains this fiction
+  \item Requires saving and restoring state
+  \item Common measure of operating system performance
+  \item \verb+cswstat.d+ measures overall context switching
+  \end{itemize}
+\end{frame}
+
+\section{Mutual Exclusion and Locking}
+\label{sec:locking}
 
 \begin{frame}
   \frametitle{What is Locking, and why do we need it?}
@@ -243,8 +333,7 @@
       \item All Device Drivers
       \item Timers and Callouts
       \item Terminals and Console
-      \item 
-      \item 
+      \item Network Protocol Lists
       \item \emph{Any shared resource}
       \end{itemize}
     \end{column}
@@ -259,15 +348,6 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Types of Locks}
-  \begin{description}
-  \item[mutex] Most basic lock
-  \item[r/w lock] Reader/writer lock
-  \item[sx lock] Shared/exclusive lock
-  \end{description}
-\end{frame}
-
-\begin{frame}
   \frametitle{Locking Strategies}
   \begin{description}
   \item [Giant Lock] One big lock around the kernel
@@ -279,7 +359,78 @@
   \end{description}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Types of Locks}
+  \begin{description}
+  \item[spin] Spin the CPU
+  \item[mutex] Most basic lock
+  \item[r/w lock] Reader/writer lock
+  \item[sx lock] Shared/exclusive lock
+  \end{description}
+\end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Visualizing Locks with DTrace}
+  \begin{itemize}
+  \item The \verb|lockstat| provider
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The lockstat Provider}
+  \begin{itemize}
+  \item All lock types have similar probes
+  \item 29 total probes in all
+  \end{itemize}
+  \begin{description}
+  \item[acquire] Code grabbed the lock
+  \item[block] Another thread was blocked
+  \item[spin] Thread is spinning on the lock
+  \item[release] Lock is released
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The lockstat Provider Arguments}
+  \begin{description}
+  \item[arg0] Address of lock object
+  \item[arg1] Lock time or spin count
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Who is locking?}
+\begin{verbatim}
+dtrace -n 'lockstat::: { @locks[execname] = count();} '
+  nfsd                                                             16
+  sudo                                                             35
+  sendmail                                                         48
+  fdc0                                                             56
+  syncer                                                           68
+  bufdaemon                                                       272
+  sshd                                                            293
+  kernel                                                          320
+  vmdaemon                                                        670
+...
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Locking Review}
+  \begin{itemize}
+  \item Protection of shared resources
+  \item Prevent incorrect updates
+  \item Types of locks in FreeBSD
+  \begin{description}
+  \item[spin] Spin the CPU
+  \item[mutex] Most basic lock
+  \item[r/w lock] Reader/writer lock
+  \item[sx lock] Shared/exclusive lock
+  \end{description}
+  \item The \verb|lockstat| provider
+  \end{itemize}
+  
+\end{frame}
 
 \section{The Illusion of Memory}
 \label{sec:memory}
