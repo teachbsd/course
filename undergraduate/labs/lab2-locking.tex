@@ -11,7 +11,7 @@
 \lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
   basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
 
-\title{Lab 2: Processes}
+\title{Lab 2: Locking}
 \author[shortname]{George V. Neville-Neil}
 
 \begin{frame}
@@ -24,17 +24,11 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Process Lab Exercises}
+  \frametitle{Locking Lab Exercises}
   \begin{itemize}
-  \item Extend newproc script to show program arguments
-  \item Write a script to show the entire process life cycle from creation
-    to exit
-    \begin{itemize}
-    \item Include \texttt{fork()}, \texttt{exec()}, \texttt{exit()} and
-      \texttt{wait()}
-    \end{itemize}
-  \item Capture and print the child's PID from \texttt{fork()}
-  \item Capture and print the exit status from \texttt{exit()}
+  \item Create a one-liner to track lock acquisition
+  \item Track spin locks
+  \item Write a one-liner to show where locks are acquired
   \end{itemize}
 \end{frame}
 
