@@ -56,7 +56,7 @@
     \end{itemize}
   \item Trace the names of files opened
     \begin{itemize}
-    \item \verb|dtrace -n 'syscall::open*:entry { printf("%s", copyinstr(arg0)); }'|
+    \item \verb|dtrace -n 'syscall::open:entry { printf("%s", copyinstr(arg0)); }'|
     \end{itemize}
   \end{itemize}
 \end{frame}
