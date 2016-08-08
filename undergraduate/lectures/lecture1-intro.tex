@@ -404,6 +404,31 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Competing Kernel Architectures}
+  \begin{columns}[t]
+    \begin{column}{5cm}
+      \emph{Micro-Kernel}
+      \begin{itemize}
+      \item Kernel is Only a Scheduler
+      \item Services Model
+      \item in-kernel IPC
+      \item POSIX as a service
+      \item Mach, Barrelfish, L4
+      \end{itemize}
+    \end{column}
+    \begin{column}{5cm}
+      \emph{Monolithic}
+      \begin{itemize}
+      \item One big program
+      \item Function Calls
+      \item System Call API
+      \item FreeBSD, Linux, Windows
+      \end{itemize}  
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
   \frametitle{Review: What an Operating System Does}
   \begin{itemize}
   \item Provides the \emph{Programming Model}
