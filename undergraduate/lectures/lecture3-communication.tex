@@ -26,38 +26,6 @@
   \titlepage
 \end{frame}
 
-
-\begin{frame}
-  \frametitle{Review: Processes}
-  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Review: }
-  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Review: }
-  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Day Plan}
-  \begin{tabular*}{1.0\linewidth}{l|l}
-    Time & Topic \\
-    \hline
-    09:15-09:45 & \textbf{Inter-Process Communication} \\
-    09:45-10:00 & Break \\
-    10:00-12:00 & Networking
-    12:00-13:00 & Lunch \\
-    13:00-14:15 & Transport Control Protocol (TCP)
-    14:15-14:30 & Break \\
-    14:30-16:30 & Lab 3 \\
-    16:30-17:00 & Lab 3 Review
-  \end{tabular*}
-\end{frame}
-
 \section{Communcation}
 \label{sec:communication}
 
@@ -80,15 +48,6 @@
   \item Semaphores and Mutexes
   \item Signals
   \item Sockets
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{History}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
   \end{itemize}
 \end{frame}
 
@@ -148,10 +107,15 @@
 }
 \end{frame}
 
+\begin{frame}
+  \frametitle{Tracing Signals}
+  
+\end{frame}
+
 \begin{frame}[fragile]
   \frametitle{Pipes}
   \begin{itemize}
-  \item Easliest bulk data IPC
+  \item Earliest bulk data IPC
   \item Key innovation of UNIX systems
   \item Depends on file descriptors
   \item \emph{STDIN} \emph{STDOUT} \emph{STDERR}
@@ -159,12 +123,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Pipe Implementation}
-  \begin{itemize}
-  \item 
-  \item 
-  \item 
-  \end{itemize}
+  \frametitle{Pipe Demonstration}
 \end{frame}
 
 \section{Internetworked Communication}
@@ -224,6 +183,29 @@
   \item Generic API
   \item Attempts to support read/write semantics
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Socket System Calls}
+  \begin{enumerate}
+  \item [socket] Returns a file descriptor
+  \item [connect] Connect to a remote program
+  \item [bind] Bind a socket to a port
+  \item [listen] Listen for connections
+  \item [accept] Returns a new file descriptor
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transferring Data on Sockets}
+  \begin{enumerate}
+  \item [read] Just like a file
+  \item [write] Just like a file
+  \item [recv] Receive a single message
+  \item [send] Send a single message
+  \item [recvmsg] Receive a message with meta-data
+  \item [sendmsg] Send a message with meta-data
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}
@@ -288,12 +270,60 @@
 
 \begin{frame}
   \frametitle{TCP Data Flow}
-  
+  \begin{itemize}
+  \item Sequence Numbers
+  \item Acknowledgements
+  \item The sliding window
+  \item Congestion Control
+   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{The Sliding Window}
   
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.9\textwidth]{../../figures/sliding-window-1.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.9\textwidth]{../../figures/sliding-window-2.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.9\textwidth]{../../figures/sliding-window-3.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.725\textwidth]{../../figures/sliding-window-4.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.725\textwidth]{../../figures/sliding-window-5.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.725\textwidth]{../../figures/sliding-window-6.pdf}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The Sliding Window}
+\centering
+\includegraphics[width=0.375\textwidth]{../../figures/sliding-window-7.pdf}
 \end{frame}
 
 \begin{frame}
@@ -332,6 +362,18 @@
   \frametitle{TCP State Machine}
 \centering
 \includegraphics[width=0.6\textwidth]{../../figures/tcp-timeline.pdf}
+\end{frame}
+
+\begin{frame}
+  \frametitle{DTrace and Networking Walkthrough}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Communication Review}
+  \begin{enumerate}
+  \item [IPC] Signals 
+  \end{enumerate}
 \end{frame}
 
 \end{document}
