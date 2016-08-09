@@ -346,6 +346,44 @@ dtrace: description 'syscall::*fork:entry ' matched 8 probes
 \end{frame}
 
 \begin{frame}
+  \frametitle{The Problems of Locking }
+  \begin{description}
+  \item[Deadlock] System unable to make forward progress
+  \item[Starvation] One part of the system always gets the lock
+  \end{description}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=0.7\textwidth]{../../figures/deadlock1.pdf}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=0.8\textwidth]{../../figures/deadlock2.pdf}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=\textwidth]{../../figures/deadlock3.pdf}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=\textwidth]{../../figures/deadlock4.pdf}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=\textwidth]{../../figures/deadlock5.pdf}
+\end{frame}
+
+\begin{frame}
+\centering
+      \includegraphics[width=\textwidth]{../../figures/deadlock6.pdf}
+\end{frame}
+
+\begin{frame}
   \frametitle{Locking Strategies}
   \begin{description}
   \item [Giant Lock] One big lock around the kernel
