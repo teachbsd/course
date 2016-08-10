@@ -85,21 +85,31 @@
   \end{description}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{How do programs access stored data?}
-  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hard and Soft Links}
-  
+  \begin{description}
+  \item[syscall] \verb|open|, \verb|close|, \verb|read|, \verb|write|
+  \item[filesystem] vnode operations
+    \item[physical media] GEOM layer
+  \end{description}
 \end{frame}
 
 \begin{frame}
   \frametitle{The Filesystems of FreeBSD}
   \begin{description}
-  \item [UFS2] 
+  \item [UFS2]
+    \begin{itemize}
+    \item Fast
+    \item Small
+    \item Snapshots
+    \item Some use of journaling
+    \end{itemize}
   \item [ZFS]
+    \begin{itemize}
+    \item Large storage
+    \item Copy on Write
+    \item Snapshots
+    \end{itemize}
   \end{description}
 \end{frame}
 
@@ -111,10 +121,6 @@
   \end{description}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Interactions with Other Subsystems}
-  
-\end{frame}
 
 \begin{frame}
   \frametitle{open() a walkthrough}
@@ -146,41 +152,41 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Moving Data}
-  
-\end{frame}
-
-\begin{frame}
   \frametitle{File Management Operations}
   \begin{description}
-  \item[Create]
-  \item[Delete]
-  \item[Rename] 
+  \item[Create] Make a new file.
+  \item[Delete] Remove a file.
+  \item[Rename] Change the name of a file.
   \end{description}
 \end{frame}
 
 \begin{frame}
   \frametitle{Renaming a File}
-  
+  \begin{itemize}
+  \item The most complex filesystem operation
+  \item Idempotent directory updates
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Interactions with Other Subsystems}
+  \begin{description}
+  \item[Virtual Memory] VNODES vs. VM Objects
+  \item[Buffer Cache] Between VM and the Filesystem
+  \item[Naming] Name cache
+  \item[Networking] Network Filesystem (NFS)
+  \end{description}
 \end{frame}
 
 \subsection{Naming of Names}
 \label{sec:naming}
 
-\begin{frame}
-  \frametitle{File Systems Overview}
-  \begin{description}
-  \item[naming] Translating human names to usable objects
-  \item[storage] Store and retrieve blocks of data
-  \end{description}
-\end{frame}
-
 \begin{frame}[fragile]
   \frametitle{Naming}
   \begin{itemize}
-  \item Translate a human name to something
+  \item Translate a human name to a location of stored data
   \item \verb+namei+ is the main interface
-  \item All names reside in the name cache
+  \item 
   \end{itemize}
 \end{frame}
 
@@ -243,17 +249,42 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 \label{sec:organization}
 
 \begin{frame}
+  \frametitle{Directories and Files}
+  \begin{description}
+  \item [Files] Contain data
+  \item[Directories] Contain files
+  \end{description}
+\end{frame}
+
+\begin{frame}
   \frametitle{The VNODE Data Structure}
-  
+  \begin{itemize}
+  \item The central structure for all storage
+  \item Many things have an associated vnode
+    \begin{itemize}
+    \item Files
+    \item Directories
+    \item Block Devices
+    \item Character Devices
+    \item Some Sockets
+    \item FIFOs
+    \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{VNODE Operations}
   \begin{itemize}
+  \item Classic, kernel OO structure
   \item After a path or name is looked up
   \item Do something with a vnode
   \item \verb|open|, \verb|close|, \verb|read|, \verb|write|
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Visualizing VNODE Operations}
+  
 \end{frame}
 
 \subsection{Data on Disk}
@@ -298,9 +329,17 @@ This gets us the most likely 8 routines we care about.
 
 \begin{frame}
   \frametitle{NFS: The Network Filesystem}
-  
+  \begin{itemize}
+  \item Developed by Sun Microsystms in the 1980s
+  \item Applies UNIX semantics to networked files
+  \item Version 2, 3 and 4
+  \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Storage Review}
+  
+\end{frame}
 
 \end{document}
 %%% Local Variables:
