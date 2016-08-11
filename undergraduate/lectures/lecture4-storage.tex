@@ -70,7 +70,8 @@
 
     \pause
     
-  \item[Reliable] ``Destroy data once and no one trusts you again'' - McKusick
+  \item[Reliable] ``Destroy data once and no one trusts you again'' -
+    Kirk McKusick
   \end{description}
 \end{frame}
 
@@ -130,7 +131,7 @@
   \item The file name is looked up.
   \item The user's permissions are checked against the file's
     permissions.
-  \item Notations are made in the kernel to inicate the file is open.
+  \item Notations are made in the kernel to indicate the file is open.
   \item A per-process file descriptor is allocated and returned to the
     caller.
   \item No data is moved from secondary storage until later.
@@ -186,7 +187,7 @@
   \begin{itemize}
   \item Translate a human name to a location of stored data
   \item \verb+namei+ is the main interface
-  \item 
+  \item Names are not stable after translation
   \end{itemize}
 \end{frame}
 
@@ -224,7 +225,7 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 
 \begin{frame}[fragile]
   \frametitle{Name Cache Module}
-  \begin{description}
+  \begin{description}[labelwidth=\widthof{lookup:hit-negative}]
   \item[enter] Add a positive entry
   \item[enter\_negative] Add a negative entry
   \item[lookup:hit] Name found in positive cache
@@ -251,8 +252,8 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 \begin{frame}
   \frametitle{Directories and Files}
   \begin{description}
+  \item [Directories] Contain files
   \item [Files] Contain data
-  \item[Directories] Contain files
   \end{description}
 \end{frame}
 
@@ -291,7 +292,7 @@ dtrace -n 'vfs:namecache:lookup:miss { printf("%s", stringof(arg1));}'
 \label{sec:disk}
 
 \begin{frame}
-  \frametitle{GEOM Oveview}
+  \frametitle{GEOM Overview}
   \begin{itemize}
   \item Framework for transforming storage requests
   \item Object Oriented
@@ -330,7 +331,7 @@ This gets us the most likely 8 routines we care about.
 \begin{frame}
   \frametitle{NFS: The Network Filesystem}
   \begin{itemize}
-  \item Developed by Sun Microsystms in the 1980s
+  \item Developed by Sun Microsystems in the 1980s
   \item Applies UNIX semantics to networked files
   \item Version 2, 3 and 4
   \end{itemize}
