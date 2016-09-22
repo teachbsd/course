@@ -179,7 +179,6 @@ dtrace -n 'syscall::exit:entry /arg0 != 0/{ printf("%s %d\n", execname, arg0); }
   \frametitle{Process Lab Exercises}
   \begin{itemize}
   \item What happens for each signal sent to \verb+yes+
-  \item Extend newproc script to show program arguments
   \item Write a script to show the entire process life cycle from creation
     to exit
   \end{itemize}
