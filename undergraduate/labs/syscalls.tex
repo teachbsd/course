@@ -1,0 +1,63 @@
+\documentclass[pdftex,handout]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{Lab 1: System Calls}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Setup}
+  \begin{enumerate}
+  \item Boot the virtual machine
+  \item Log in as \verb|root| on the console
+  \item Load the DTrace kernel modules
+    \begin{itemize}
+    \item \verb|kldload dtraceall|
+    \end{itemize}
+  \item Check that the modules have loaded
+    \begin{itemize}
+    \item \verb|kldstat|
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Writing Data}
+  \begin{itemize}
+  \item Writing data is very common
+  \item Using echo, cat, and vi or Emacs to write
+  \item Narrow your scope
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{System Call Lab Exercises}
+  \begin{itemize}
+  \item Count all the system calls in the freebsd module
+  \item Find and show all the system calls used by sshd
+  \item Use a D script to record data written by echo
+  \item Construct a D script to measure the write() system call throughput
+  \item Construct a D script to measure the write() system call latency
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
