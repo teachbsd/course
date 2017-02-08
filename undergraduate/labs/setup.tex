@@ -11,7 +11,7 @@
 \lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
   basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
 
-\title{Lab 1: Tracing}
+\title{Lab 1: System Setup}
 \author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
 
 \begin{frame}
@@ -69,8 +69,6 @@ dtrace -n 'syscall::open:entry \
   \item Find the current list of providers
   \item Count the probes available
   \item Find and show all the system calls used by sshd
-  \item Summarize requested \verb|write()| sizes by program name
-  \item Summarize return values from \verb|write()| by program name
   \item Find and modify three (3) of the DTrace one-liners
   \end{itemize}
 \end{frame}
