@@ -11,9 +11,9 @@
 \lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
   basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
 
-\title{A Look Inside FreeBSD with DTrace}
-\subtitle{Extending DTrace}
-\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+\title{DTrace for Developers}
+\subtitle{DTrace and }
+\author[shortname]{George V. Neville-Neil}
 
 \begin{frame}
   \titlepage
@@ -31,34 +31,154 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Statically Defined Tracepoints}
-  \begin{itemize}
-  \item Can appear anywhere in code 
-    \begin{itemize}
-    \item Not just at entry or return
-    \end{itemize}
-  \item Useful for replacing \verb|printf()| and logging and \verb|DEBUG|
-  \item \verb|USDT| vs. \verb|SDT|
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{The Extension Process}
-  \begin{description}
-  \item [Provider] Add or extend? 
-  \item [Declare] tracepoints in a header
-  \item [Define] tracepoints in compiled code 
-  \item [Translate] the arguments and structures
-  \end{description}
-\end{frame}
-
 \begin{frame}
   \frametitle{Arguments and Types}
   \begin{description}
   \item[Debugger Syntax] 
   \item[Translators] 
   \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{DTrace the Runtime Debugger}
+  \begin{itemize}
+  \item \verb+lldb+ and \verb+gdb+ stop the program
+  \item \verb+DTrace+ is debugging in motion
+  \item How do we inspect state?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Inspecting Variables}
+  \begin{itemize}
+  \item \verb+DTrace+ knows about data types
+  \item Every D action can print passed variables
+  \item Use C's dereference symbol \verb+*+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Find the available structure}
+\begin{lstlisting}
+dtrace -lv -n fbt::ether_input:entry
+   ID   PROVIDER            MODULE                          FUNCTION NAME
+16437        fbt            kernel                       ether_input entry
+...
+	Argument Types
+		args[0]: struct ifnet *
+		args[1]: struct mbuf *
+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dereference the pointer to the structure}
+\begin{lstlisting}
+dtrace -n 'fbt::ether_input:entry { print(*(args[0])); }'
+\end{lstlisting}
+\begin{lstlisting}
+...
+u_char if_alloctype = 0x6
+void *if_softc = 0xfffffe0000dba000
+void *if_llsoftc = 0
+void *if_l2com = 0
+const char *if_dname = 0xfffff80003a9e2d8
+int if_dunit = 0
+u_short if_index = 0x1
+short if_index_reserved = 0
+char [16] if_xname = [ "em0" ]
+...
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inspecting Memory}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Casting pointers}
+  \begin{itemize}
+  \item Sometimes programmers know better
+  \item Casting is a common operation
+  \item Network code uses \verb+struct sockaddr+
+  \item We \emph{know} it's a \verb+struct sockaddr_in+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Find the argument to cast}
+\begin{lstlisting}
+fbt            kernel                       tcp_connect entry
+...
+   Argument Types
+        args[0]: struct tcpcb *
+        args[1]: struct sockaddr *
+        args[2]: struct thread *
+\end{lstlisting}
+  \begin{itemize}
+  \item We want \verb+args[1]+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Without the cast}
+\begin{lstlisting}
+dtrace -n 'fbt:kernel:tcp_connect:entry { print(*args[1]); }'
+dtrace: description 'fbt:kernel:tcp_connect:entry ' matched 1 probe
+CPU     ID                    FUNCTION:NAME
+  0  17961                tcp_connect:entry struct sockaddr {
+    unsigned char sa_len = 0x10
+    sa_family_t sa_family = 0x2
+    char [14] sa_data = [ "" ]
+}\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{With the cast}
+\begin{lstlisting}
+dtrace -n 'fbt:kernel:tcp_connect:entry { print(*(struct sockaddr_in *)args[1]); }'
+dtrace: description 'fbt:kernel:tcp_connect:entry ' matched 1 probe
+CPU     ID                    FUNCTION:NAME
+  0  17961                tcp_connect:entry struct sockaddr_in {
+    uint8_t sin_len = 0x10
+    sa_family_t sin_family = 0x2
+    in_port_t sin_port = 0x1600
+    struct in_addr sin_addr = {
+        in_addr_t s_addr = 0x11310ac
+    }
+    char [8] sin_zero = [ "" ]
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Inspecting a structure element}
+  \begin{itemize}
+  \item We often only want one element
+  \item Useful in D scripts
+  \item Inspect an element with C syntax
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Inspect the address}
+\begin{lstlisting}
+dtrace -n 'fbt:kernel:tcp_connect:entry { printf("Address %s", inet_ntoa(&((struct sockaddr_in *)args[1])->sin_addr.s_addr)); }'
+dtrace: description 'fbt:kernel:tcp_connect:entry ' matched 1 probe
+CPU     ID                    FUNCTION:NAME
+  0  17961                tcp_connect:entry Address 172.16.19.1
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Structure Lab}
+  \begin{itemize}
+  \item Find an \verb+fbt+ with a \verb+struct vnode+
+  \item Print the entire structure.
+  \item Pick one, changing, element and write a D script to print it.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -71,19 +191,292 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Stability}
+  \frametitle{Translator Components}
+  \begin{description}
+  \item[Bound Values] Binding constants
+  \item[String Tables] Mapping simple values to strings
+  \item[D Definitions] Defining the structures for D scripts
+  \item[C Mappings] Translating the values
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Integer Values}
   \begin{itemize}
-  \item What makes a provider or probe stable or unstable?
-    \begin{description}
-    \item [TCP] Stable
-    \item[UDP] Stable
-    \item[IP] Stable
-    \item[mbuf] Unstable
-    \end{description}
+  \item Binding an integer to a name
+  \item Very much like const or a \verb+#define+ in C
+  \item Each binding has a version
   \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Integer Binding Examples}
+\begin{lstlisting}
+// From errno.d
+inline int EPERM = 1;
+#pragma D binding "1.0" EPERM
+
+// From tcp.d
+#pragma D binding "1.6.3" TCPS_CLOSED
+inline int TCPS_CLOSED =	0;
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Unbound Values}
+  \begin{itemize}
+  \item Not every variable needs to be bound
+  \item Or have a version
+  \item Can be used locally for convenience
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Unbound Integer}
+\begin{lstlisting}
+inline uint8_t INP_IPV4	= 0x01;
+inline uint8_t INP_IPV6 = 0x02;
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Variable Binding and Versions}
+  \begin{itemize}
+  \item Variables are bound to a version of \verb+DTrace+
+  \item To be discussed later
+  \end{itemize}
+\begin{lstlisting}
+#pragma D binding "1.6.3" TCPS_TIME_WAIT
+inline int TCPS_TIME_WAIT =	10;
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Binding Strings}
+  \begin{itemize}
+  \item Used to create value to name mappings
+  \item Data type is \verb+string+ and not \verb+char *+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP States Bound as Strings}
+\begin{lstlisting}
+#pragma D binding "1.6.3" tcp_state_string
+inline string tcp_state_string[int32_t state] =
+	state == TCPS_CLOSED ?		"state-closed" :
+	state == TCPS_LISTEN ?		"state-listen" :
+	state == TCPS_SYN_SENT ?	"state-syn-sent" :
+	state == TCPS_SYN_RECEIVED ?	"state-syn-received" :
+	state == TCPS_ESTABLISHED ?	"state-established" :
+	state == TCPS_CLOSE_WAIT ?	"state-close-wait" :
+	state == TCPS_FIN_WAIT_1 ?	"state-fin-wait-1" :
+	state == TCPS_CLOSING ?		"state-closing" :
+	state == TCPS_LAST_ACK ?	"state-last-ack" :
+	state == TCPS_FIN_WAIT_2 ?	"state-fin-wait-2" :
+	state == TCPS_TIME_WAIT ?	"state-time-wait" :
+	"<unknown>";
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Defining a Structure in D}
+  \begin{itemize}
+  \item We define convenience structures in D
+  \item Map kernel structures to easy to use names
+  \item The \emph{can} be applied to many OSs
+    \begin{itemize}
+    \item FreeBSD
+    \item Mac OS
+    \item Illumos
+    \end{itemize}
+  \item Some kernel structures just do \emph{not} map well
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UDP Info Definition in D}
+\begin{lstlisting}
+typedef struct udpsinfo {
+	uintptr_t udps_addr;
+	uint16_t udps_lport;	/* local port */
+	uint16_t udps_rport;	/* remote port */
+	string udps_laddr;	/* local address, as a string */
+	string udps_raddr;	/* remote address, as a string */
+} udpsinfo_t;
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mapping a Structure from C}
+\begin{lstlisting}
+#pragma D binding "1.6.3" translator
+translator udpsinfo_t < struct inpcb *p > {
+udps_addr =	(uintptr_t)p;
+udps_lport =	p == NULL ? 0 : ntohs(p->inp_inc.inc_ie.ie_lport);
+udps_rport =	p == NULL ? 0 : ntohs(p->inp_inc.inc_ie.ie_fport);
+udps_laddr =	p == NULL ? "" :
+    p->inp_vflag == INP_IPV4 ?
+    inet_ntoa(&p->inp_inc.inc_ie.ie_dependladdr.ie46_local.ia46_addr4.s_addr) :
+	    inet_ntoa6(&p->inp_inc.inc_ie.ie_dependladdr.ie6_local);
+udps_raddr =	p == NULL ? "" :
+    p->inp_vflag == INP_IPV4 ?
+    inet_ntoa(&p->inp_inc.inc_ie.ie_dependfaddr.ie46_foreign.ia46_addr4.s_addr) :
+    inet_ntoa6(&p->inp_inc.inc_ie.ie_dependfaddr.ie6_foreign);
+};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile,fragile]
+  \frametitle{Translators and Versions}
+\begin{lstlisting}
+#pragma D binding "1.6.3" translator
+translator udpsinfo_t < struct inpcb *p > {
+\end{lstlisting}
+  \begin{itemize}
+  \item New translators are bound to the current version
+  \end{itemize}
+\begin{lstlisting}
+root@:~ # dtrace -V
+dtrace: Sun D 1.12.1
+root@:~ #
+\end{lstlisting}
+  \begin{itemize}
+  \item A translator written now would be bound to ``1.12.1''
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP Translation from C to D}
+  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Translators are not Strictly Necessary}
+  \begin{itemize}
+  \item You can (almost) always print a structure via de-reference
+  \item You find the name of the structure with \verb|-lv|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Variant Translators}
+  \begin{itemize}
+  \item Multiple translators to a single D structure
+  \item From different source pointers
+  \item Convenient for D script writers
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Translating an IP header from a uint8\_t *}
+\begin{lstlisting}
+#pragma D binding "1.5" translator
+translator ipinfo_t < uint8_t *p > {
+	ip_ver =	p == NULL ? 0 : ((struct ip *)p)->ip_v;
+	ip_plength =	p == NULL ? 0 :
+	    ((struct ip *)p)->ip_v == 4 ?
+	    ntohs(((struct ip *)p)->ip_len) - (((struct ip *)p)->ip_hl << 2):
+	    ntohs(((struct ip6_hdr *)p)->ip6_ctlun.ip6_un1.ip6_un1_plen);
+	ip_saddr =	p == NULL ? 0 :
+	    ((struct ip *)p)->ip_v == 4 ?
+	    inet_ntoa(&((struct ip *)p)->ip_src.s_addr) :
+	    inet_ntoa6(&((struct ip6_hdr *)p)->ip6_src);
+	ip_daddr =	p == NULL ? 0 :
+	    ((struct ip *)p)->ip_v == 4 ?
+	    inet_ntoa(&((struct ip *)p)->ip_dst.s_addr) :
+	    inet_ntoa6(&((struct ip6_hdr *)p)->ip6_dst);
+};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{And not from an a struct mbuf *}
+\begin{lstlisting}
+#pragma D binding "1.13" translator
+translator ipinfo_t < struct mbuf *m > {
+	ip_ver =	m == NULL ? 0 : ((struct ip *)m->m_data)->ip_v;
+	ip_plength =	m == NULL ? 0 :
+	    ((struct ip *)m->m_data)->ip_v == 4 ?
+	    ntohs(((struct ip *)m->m_data)->ip_len) - 
+			(((struct ip *)m->m_data)->ip_hl << 2):
+	    ntohs(((struct ip6_hdr *)m->m_data)->ip6_ctlun.ip6_un1.ip6_un1_plen);
+	ip_saddr =	m == NULL ? 0 :
+	    ((struct ip *)m->m_data)->ip_v == 4 ?
+	    inet_ntoa(&((struct ip *)m->m_data)->ip_src.s_addr) :
+	    inet_ntoa6(&((struct ip6_hdr *)m->m_data)->ip6_src);
+	ip_daddr =	m == NULL ? 0 :
+	    ((struct ip *)m->m_data)->ip_v == 4 ?
+	    inet_ntoa(&((struct ip *)m->m_data)->ip_dst.s_addr) :
+	    inet_ntoa6(&((struct ip6_hdr *)m->m_data)->ip6_dst);
+};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{DTrace Translator Lab}
+  \begin{itemize}
+  \item Add a string value for the process's state to the
+    \verb|psinfo_t| structure
+  \item Refer to \verb|psinfo.d| and \verb|proc.h|
+  \end{itemize}
+\begin{lstlisting}
+	enum {
+		PRS_NEW = 0,		/* In creation */
+		PRS_NORMAL,		/* threads can be run. */
+		PRS_ZOMBIE
+	} p_state;			/* (j/c) Process status. */
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{New values and string table}
+\begin{lstlisting}
+inline uint8_t PRS_NEW = 0;
+inline uint8_t PRS_NORMAL = 1;
+inline uint8_t PRS_ZOMBIE = 2;
+
+inline string state_string[uint32_t state] =
+        state == PRS_NEW ? "NEW":
+        state == PRS_NORMAL ? "NORMAL" :
+        state == PRS_ZOMBIE ? "ZOMBIE" :
+        "YIKES";
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Updated Structure and Translator}
+  \begin{itemize}
+  \item Updated psinfo Structure
+  \end{itemize}
+\begin{lstlisting}
+        u_int   pr_jailid;      /* jail id */
+        string  pr_state;       /* <- NEW ELEMENT */
+} psinfo_t;
+\end{lstlisting}
+  \begin{itemize}
+  \item Updated Translator
+  \end{itemize}
+\begin{lstlisting}
+        pr_jailid = T->p_ucred->cr_prison->pr_id;
+        pr_state = state_string[T->p_state]; /* <- Update */
+};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Testing our New Translator}
+\begin{lstlisting}
+[1]    dtrace -n proc:kernel:none:create { print(curpsinfo->pr_state); } &
+CPU     ID                    FUNCTION:NAME
+  0  55856                      none:create string "NORMAL"
+
+  0  55856                      none:create string "NORMAL"
+\end{lstlisting}
+\end{frame}
 \end{document}
+
+
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: t
