@@ -1,0 +1,172 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showspaces=false, showtabs=false, showstringspaces=false}
+
+\title{A Look Inside FreeBSD with DTrace}
+\subtitle{Advanced TCP}
+\author[shortname]{George V. Neville-Neil \and Robert N. M. Watson}
+
+\begin{frame}
+  \frametitle{DTrace and TCP}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP Tracepoints}
+  \begin{description}
+  \item[TCP Provider] 
+  \item[SIFTR]
+  \item[TCPDEBUG]
+  \item[TCP fbt's] 
+\end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Provider}
+  \begin{itemize}
+  \item Collects together several sets of TCP tracepoints
+  \end{itemize}
+  \begin{itemize}
+  \item \verb|accept-established|
+  \item \verb|accept-refused| 
+  \item \verb|connect-established|  
+  \item \verb|connect-refused|  
+  \item \verb|connect-request|  
+  \item \verb|receive|  
+  \item \verb|send|  
+  \item \verb|state-change|  
+  \item \verb|receive-autoresize|  
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{State Changes}
+  
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Statistical Information For TCP Research (SIFTR)}
+  \begin{itemize}
+  \item Installed as an IP filter hook
+  \item Captures TCP data and IP addresses
+  \item Looks at all packets
+  \item Looks up inpcb for each TCP packet
+    \begin{itemize}
+    \item Which has a measurable performance impact
+    \end{itemize}
+  \item Normally logs data to a file
+  \item Controlled by a system wide sysctl (net.inet.sift.enabled)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{SIFTR Fields Collected}
+  \begin{tabular*}{1.0\linewidth}{|l|l|}
+    \verb|direction| & inbound or outbound \\
+    \verb|ipver| & IP version \\
+    \verb|hash| & \\
+    \verb|tcp_localport| & \\
+    \verb|tcp_foreignport| & \\
+    \verb|snd_cwnd| & congestion window \\
+    \verb|snd_wnd| & \\
+    \verb|rcv_wnd| & \\
+    \verb|snd_bwnd| & \\
+    \verb|snd_ssthresh| & \\
+    \verb|conn_state| & \\
+    \verb|max_seg_size| & \\
+    \verb|smoothed_rtt | & \\
+    \verb|sack_enabled| & \\
+    \verb|snd_scale| & \\
+    \verb|rcv_scale| & \\
+    \verb|flags| & \\
+    \verb|rxt_length| & \\
+    \verb|snd_buf_hiwater| & \\
+    \verb|snd_buf_cc| & \\
+    \verb|rcv_buf_hiwater| & \\
+    \verb|rcv_buf_cc| & \\
+    \verb|sent_inflight_bytes| & \\
+    \verb|t_segqlen| & \\
+    \verb|flowid| & \\
+    \verb|flowtype| & 
+  \end{tabular*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SIFTR and DTrace}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCPDEBUG}
+  \begin{itemize}
+  \item TCBDEBUG added in the original BSD releases
+  \item Rarely enabled kernel option that shows:
+    \begin{itemize}
+    \item direction
+    \item state
+    \item sequence space
+    \item \verb|rcv_nxt|, \verb|rcv_wnd|, \verb|rcv_up|
+    \item \verb|snd_una|, \verb|snd_nxt|, \verb|snx_max|
+    \item \verb|snd_wl1|, \verb|snd_wl2|, \verb|snd_wnd|
+    \end{itemize}
+  \item Set on a per socket basis (\verb|SO_TCPDEBUG|)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCPDEBUG Tracepoints}
+  \begin{description}
+  \item[input] 6 locations
+  \item[output] 2 locations
+  \item[drop] Currently unused
+  \item[user] User transitions and timers
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP input}
+  \begin{itemize}
+  \item 6 locations, all in \verb|tcp_input()|
+  \item Code walkthrough
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP output}
+  \begin{itemize}
+  \item 1 location in \verb|tcp_output()|, just before \verb|ip_output()|
+  \item 1 location, at the end of \verb|tcp_respond()|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP user}
+  \begin{itemize}
+  \item Used for timers and user state transitions
+  \item Whenever the slow timeout fires
+  \item \verb|attach|, \verb|bind|, \verb|listen|, \verb|connect|,
+    \verb|accept|, \verb|disconnect|
+  \end{itemize}
+\end{frame}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
