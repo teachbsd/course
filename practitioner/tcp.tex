@@ -28,6 +28,7 @@
 \begin{frame}
   \frametitle{DTrace and TCP}
   \begin{itemize}
+  \item Several different ways to look at connections
   \item 
   \end{itemize}
 \end{frame}
@@ -35,10 +36,10 @@
 \begin{frame}
   \frametitle{TCP Tracepoints}
   \begin{description}
-  \item[TCP Provider] 
-  \item[SIFTR]
-  \item[TCPDEBUG]
-  \item[TCP fbt's] 
+  \item[TCP Provider] The overall collection of tracepoints
+  \item[SIFTR] Looks at whole system performance
+  \item[TCPDEBUG] Socket by socket information
+  \item[TCP fbt's] When all else fails
 \end{description}
 \end{frame}
 
@@ -60,9 +61,22 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{State Changes}
-  
+  \begin{itemize}
+  \item \verb|tcp:kernel::state-change||
+  \item \verb|args[5]| old state
+  \item \verb|args[3]| new state
+  \item Why?  History!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{TCP Structures}
+  \begin{itemize}
+  \item \verb|tcpinfo_t| TCP header data
+  \item \verb|tcpsinfo_t| TCP socket data
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -103,40 +117,42 @@
 
 \begin{frame}[fragile]
   \frametitle{SIFTR Fields Collected}
-  \begin{tabular*}{1.0\linewidth}{|l|l|}
-    \verb|direction| & inbound or outbound \\
-    \verb|ipver| & IP version \\
-    \verb|hash| & \\
-    \verb|tcp_localport| & \\
-    \verb|tcp_foreignport| & \\
-    \verb|snd_cwnd| & congestion window \\
-    \verb|snd_wnd| & \\
-    \verb|rcv_wnd| & \\
-    \verb|snd_bwnd| & \\
-    \verb|snd_ssthresh| & \\
-    \verb|conn_state| & \\
-    \verb|max_seg_size| & \\
-    \verb|smoothed_rtt | & \\
-    \verb|sack_enabled| & \\
-    \verb|snd_scale| & \\
-    \verb|rcv_scale| & \\
-    \verb|flags| & \\
-    \verb|rxt_length| & \\
-    \verb|snd_buf_hiwater| & \\
-    \verb|snd_buf_cc| & \\
-    \verb|rcv_buf_hiwater| & \\
-    \verb|rcv_buf_cc| & \\
-    \verb|sent_inflight_bytes| & \\
-    \verb|t_segqlen| & \\
-    \verb|flowid| & \\
-    \verb|flowtype| & 
+  \begin{tabular*}{1.0\linewidth}{|l|}
+    \verb|direction| \\
+    \verb|ipver|  \\
+    \verb|hash| \\
+    \verb|tcp_localport| \\
+    \verb|tcp_foreignport| \\
+    \verb|snd_cwnd| \\
+    \verb|snd_wnd| \\
+    \verb|rcv_wnd| \\
+    \verb|snd_bwnd| \\
+    \verb|snd_ssthresh| \\
+    \verb|conn_state| \\
+    \verb|max_seg_size| \\
+    \verb|smoothed_rtt | \\
+    \verb|sack_enabled| \\
+    \verb|snd_scale| \\
+    \verb|rcv_scale| \\
+    \verb|flags| \\
+    \verb|rxt_length| \\
+    \verb|snd_buf_hiwater| \\
+    \verb|snd_buf_cc| \\
+    \verb|rcv_buf_hiwater| \\
+    \verb|rcv_buf_cc| \\
+    \verb|sent_inflight_bytes| \\
+    \verb|t_segqlen| \\
+    \verb|flowid| \\
+    \verb|flowtype| 
   \end{tabular*}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{SIFTR and DTrace}
   \begin{itemize}
-  \item 
+  \item A single tracepoint within the \verb|tcp| provider
+  \item kld must be loaded separately from dtrace
+  \item The sysctl must be enabled for the tracepoint to work
   \end{itemize}
 \end{frame}
 
@@ -193,6 +209,20 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{The tcpdebug demo script}
+\end{frame}
+
+\begin{frame}
+  \frametitle{TCP Lab}
+  \begin{itemize}
+  \item Create a one liner to show where rejected connections
+    originate
+  \item Use SIFTR to trace the congestion window
+  \item Use TCPDEBUG to trace the congestion window
+  \item Using top(1) compare the overhead of the two solutions
+  \end{itemize}
+\end{frame}
 
 \end{document}
 

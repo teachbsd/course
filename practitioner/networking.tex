@@ -45,14 +45,12 @@
 
 \begin{frame}[fragile]
   \frametitle{Looking Directly at Sockets}
-\begin{verbatim}
-# Count sockets by family
-
-# Count sockets by type
-
-# Count sockets by protocol
-\end{verbatim}  
+  \begin{itemize}
+  \item The \verb|socket| system call
+  \item Also the \verb|fbt| versions
+  \end{itemize}
 \end{frame}
+
 
 \begin{frame}
   \frametitle{Network Lab (Sockets Exercises)}
@@ -90,6 +88,15 @@
   \item Only probes are \verb+send+ and \verb+receive+
   \end{itemize}
 \end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{UDP Structures}
+  \begin{itemize}
+  \item \verb|udpinfo_t| UDP header data
+  \item \verb|udpsinfo_t| UDP socket data
+  \end{itemize}
+\end{frame}
+
 
 \begin{frame}[fragile]
   \frametitle{UDP Send and Receive}
@@ -157,9 +164,8 @@ value  ------------- Distribution ------------- count
 \begin{frame}[fragile]
   \frametitle{Network Lab (Protocols)}
   \begin{itemize}
-  \item Show inbound connections to sshd
   \item What routines are called when a ping packet arrives?
-  \item What routines are called before \verb+tcp_output()+?
+  \item What routines are called before \verb+ether_output()+?
   \end{itemize}
 \end{frame}
 
