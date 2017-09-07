@@ -1,0 +1,291 @@
+\documentclass[pdftex]{beamer}
+\usetheme{metropolis}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\begin{document}
+\lstset{language=C, escapeinside={(*@}{@*)}, numbers=left,
+  basicstyle=\tiny, showstringspaces=false, showspaces=false, showtabs=false}
+
+\title{DTrace for Developers}
+\subtitle{Tracepoints Outside the Kernel}
+\author[shortname]{George V. Neville-Neil}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tracing Programs}
+  \begin{itemize}
+  \item Much of DTrace has been about the kernel
+  \item There is a lot more code in user space
+  \item We can trace that code too
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The pid provider}
+  \begin{itemize}
+  \item Let's you look into a process
+  \item The \verb+pid+ and \verb+target+ variables
+  \item Functions work like \verb+fbt+ the kernel
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Finding probes in user space}
+  \begin{itemize}
+  \item Run the program with -c
+  \item Attach to a running daemon with -p
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What probes exist in ls?}
+  
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Whoops, what happened there?}
+  \begin{itemize}
+  \item DTrace continues to play it safe
+  \item Protects the system against memory exhaustion
+  \item Cut the probes in half by using \verb+:entry+
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Dissecting a PID probe}
+  \begin{description}
+  \item[Provider] The PID
+  \item[Module] Program or Library
+  \item[Function] Function
+  \item[Name] entry, return or a hex offset
+  \end{description}
+\begin{verbatim}
+pid3722:ls:usage:entry  
+pid3722:libc.so.7:__malloc:entry
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tracing an Instruction}
+  \begin{itemize}
+  \item We can create a probe point on an instruction
+  \item Listing a function without a \verb+entry+ or \verb+return+
+  \item Instructions are hexadecimal offsets
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{The instructions in malloc}
+\begin{lstlisting}
+dtrace -ln 'pid$target::__malloc:' -c ls
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Getting the return value}
+  \begin{itemize}
+  \item User space follows the same convention as kernel \verb+fbt+s
+    \begin{itemize}
+    \item Because they all follow the same ABI
+    \end{itemize}
+  \item \verb+arg0+ Return address
+  \item \verb+arg1+ Return value
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Tracing malloc()}
+\begin{lstlisting}
+dtrace -qn 'pid$target::malloc:return \
+    { printf ("allocated 0x%x returned from offset 0x%x", arg1, arg0); }' -p 600
+allocated 0x8040431c0 returned from offset 0x8e
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Does malloc ever complete?}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Predicates and PIDs}
+\begin{lstlisting}
+dtrace -qn 'pid$target::malloc:return /arg0 != 0x8e/ 
+   { printf ("allocated 0x%x returned from offset 0x%x\n", arg1, arg0); }' -c ls
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{PID Provider Lab}
+  \begin{itemize}
+  \item How many probe points exist in \verb+ping+ ?
+  \item What libraries are used by \verb+vi+?
+  \item What does the \verb+usage()+ function return?
+  \item Which function in \verb+ls+ calls \verb+malloc+ most frequently?
+  \item Write a D script to track \verb+malloc()+ pointers.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{The USDT Provider}
+  \begin{itemize}
+  \item User Space Dynamic Tracing
+  \item Different from the \verb|pid| provider
+  \item Add probes to your own programs
+  \item Dynamic logging!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Adding Tracepoints to User Programs}
+  \begin{itemize}
+  \item Like \verb+SDT+ but different.
+  \item More powerful in some ways
+  \item Less powerful in others
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Hello World, again}
+\begin{lstlisting}
+#include <stdio.h>
+#include <unistd.h>
+
+int main (int argc, char **argv) {
+	int i;
+	for (i = 0; i < 5; i++) {
+		printf("Hello world\n");
+		sleep(1);
+	}
+}  
+\end{lstlisting}
+  \begin{itemize}
+  \item Thanks to Alan Hargreaves who wrote this for the DTrace book
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Adding a single probe}
+\begin{lstlisting}
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/sdt.h> /* <- new header file */
+
+int main (int argc, char **argv) {
+	int i;
+	for (i = 0; i < 5; i++) {
+		DTRACE_PROBE1(world, loop, i); /* <- probe point */
+		printf("Hello world\n");
+		sleep(1);
+	}
+}  
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Probe Description File}
+\begin{lstlisting}
+provider world {
+        probe loop(int);
+};
+
+#pragma D attributes Evolving/Evolving/Common provider world provider
+#pragma D attributes Private/Private/Common provider world module
+#pragma D attributes Private/Private/Common provider world function
+#pragma D attributes Evolving/Evolving/Common provider world name
+#pragma D attributes Evolving/Evolving/Common provider world args
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Updated Build Process}
+\begin{lstlisting}
+cc -c hello.c
+dtrace -G -s probes.d hello.o
+cc -o hello -ldtrace probes.o hello.o  
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dissecting a USDT Probe}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Stability}
+  \begin{description}
+  \item[Name] Do we think the name will change?
+  \item[Data] Are we committed to the data format?
+  \item[Dependency] Is this probe OS or hardware dependent?
+  \end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Stability}
+  \begin{description}
+  \item [Internal] Part of DTrace
+  \item [Private]  Vestige of Sun Microsystems
+  \item [Obsolete] Will be removed in upcoming release, do not use.
+  \item [External] Vestige of Sun Microsystems
+  \item [Unstable] Can change at any time.
+  \item [Evolving] Could change but becoming more stable.
+  \item [Stable] Will not change within a major revision.
+  \item [Standard] Defined by a standards body (POSIX, IETF etc.)
+  \end{description}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Dependency Classes}
+  \begin{description}
+  \item[Unknown]
+  \item[CPU] SPARC, Intel
+  \item[Platform] FreeBSD, Illumos, MacOS
+  \item[Group] Similar to ISA on FreeBSD
+  \item[ISA] Instruction set architecture (amd64, arm32)
+  \item[Common] Nearly all user space probes should use this.
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Reviewing our probe file}
+\begin{lstlisting}
+provider world {
+	probe loop(int);
+};
+
+#pragma D attributes Evolving/Evolving/Common provider world provider
+#pragma D attributes Private/Private/Common provider world module
+#pragma D attributes Private/Private/Common provider world function
+#pragma D attributes Evolving/Evolving/Common provider world name
+#pragma D attributes Evolving/Evolving/Common provider world args
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{USDT Translator Lab}
+  \begin{itemize}
+  \item Install /usr/src onto your VM
+  \item Add the following probes to \verb|/usr/src/bin/echo/echo.c|
+    \begin{itemize}
+    \item Probe the value of \verb|nflag|.
+    \item Probe the value of \verb|len| in the argument loop.
+    \item Probe the value of \verb|veclen| in the final loop.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "developers"
+%%% End:
