@@ -1,0 +1,508 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{upquote}
+
+\begin{document}
+
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\title{L41: DTrace Quick Start}
+\author{Dr Robert N.M. Watson}
+\date{Michaelmas Term 2016}
+\maketitle
+
+DTrace is a dynamic tracing tool originally developed by Sun Microsystems (now
+Oracle) available in Solaris, Mac OS X, FreeBSD, and as an optional add-on for
+Linux.
+A key design property of DTrace is that it is always available, possible
+because it incurs no (serious) performance penalty when not being actively
+used.
+Simple tracing may be done using the command line; in practice, however, we
+write short scripts in DTrace's D scripting language, which allow much more
+complex behaviours such as conditional or speculative tracing, data
+aggregation, and so on.
+This document provides a short glossary of DTrace terms, information on the
+\code{dtrace} command-line tool, a few sample DTrace scripts to get you
+started, and a list of commonly used probes and built-in variables.
+
+\section*{DTrace principles}
+
+DTrace scripts consist of a series of statements identifying the
+\textit{probes}, or instrumentation points, that should be enabled, an
+optional \textit{predicate} that will further refine the set of behaviours to
+trace, and an \textit{action} block that dictates what DTrace should do (e.g.,
+trace) when a matching probe fires and is accepted by the predicate.
+Probe names include implicit wildcards, making it easy to trace, for example,
+all system calls, or all NFS client RPCs.
+Predicates allow environmental context or retained script state to control
+whether the action executes -- e.g., whether the process name is \code{sshd},
+or if the same thread has previously performed some action during the current
+system call.
+Actions can record values in variables, generate trace output, and various
+other activities that influence both future tracing and also, potentially,
+system behaviour.
+Your first DTrace script might read as follows:
+
+\begin{small}
+\begin{verbatim}
+BEGIN { printf("Hello world"); exit(0); }
+\end{verbatim}
+\end{small}
+
+This script matches the DTrace-internal \code{BEGIN} event, corresponding to
+script start, and has two statements in its action block: one, to print the
+string \code{Hello world}, and a second to terminate the script.
+A more enlightening script might trace system-call arguments to the
+\code{open()} system call by processes with the name \code{sshd}, using a
+predicate to ensure that only events triggered by \code{sshd} will be traced:
+
+\begin{small}
+\begin{verbatim}
+syscall::open:entry /execname == "sshd"/ { trace(copyinstr(arg0)); }
+\end{verbatim}
+\end{small}
+
+\noindent
+Notice that the system-call argument, \code{arg0}, is in fact a pointer to
+user memory, rather than an in-kernel string.
+The DTrace \code{copyinstr()} function allows the script to copy the string
+into kernel memory so that its contents can be traced.
+
+\section*{DTrace command}
+
+The \code{dtrace} command-line tool provides a simple user interface to
+DTrace.
+It will generally be used in one of three forms: to list available probes, to
+specify simple probes, predicates, and actions on the command line, or with a
+script holding a set of probes, predicates, and actions originating in a file.
+Except for very simple investigations, you will almost always want to use the
+latter.
+
+You will need to run \code{dtrace} as root; you can use \code{su} to
+switch to the root user if you have logged in as another user via SSH.
+Most filesystems in our teaching setup are mounted read-only in order to avoid
+wear on the flash, as well as discourage storing files on partitions that we
+might overwrite if issuing software updates during the module.
+You are encouraged to store trace data, and any other information of value,
+such as scripts you write, in \code{/data}, and to copy important data off
+the board to your notebook or workstation for analysis.
+
+\subsection*{Listing available probes}
+
+To list all available probes:
+
+\begin{small}
+\begin{verbatim}
+dtrace -l
+\end{verbatim}
+\end{small}
+
+\noindent
+To list all probes in the \code{syscall} provider:
+
+\begin{small}
+\begin{verbatim}
+dtrace -l -P syscall
+\end{verbatim}
+\end{small}
+
+\subsection*{Specifying probes, predicates, and actions on the command line}
+
+The following examples use the \code{-n} argument, which specifies tracing by
+probe name.
+To trace return values (file descriptors) from the \code{open} system call:
+
+\begin{small}
+\begin{verbatim}
+dtrace -n 'syscall::open:return /errno == 0/ { trace(execname); trace(arg0); }'
+\end{verbatim}
+\end{small}
+
+\noindent
+To track the aggregate distribution of memory sizes requested via the kernel
+\code{malloc} function:
+
+\begin{small}
+\begin{verbatim}
+dtrace -n 'fbt:kernel:malloc:entry { @foo = quantize(arg0); }'
+\end{verbatim}
+\end{small}
+
+\noindent
+Count stack traces sampled using the 99Hz kernel profiling timer:
+
+\begin{small}
+\begin{verbatim}
+dtrace -n 'profile-99 { @foo[stack()] = count(); }'
+\end{verbatim}
+\end{small}
+
+\noindent
+Run a DTrace script named \code{foo.d}:
+
+\begin{small}
+\begin{verbatim}
+dtrace -s foo.d
+\end{verbatim}
+\end{small}
+
+\noindent
+It will sometimes be useful to specify the \code{-q} flag, for \textit{quiet}
+output: this requests that all normal DTrace output be suppressed, with only
+explicit output from functions such as \code{printf()} being displayed.
+
+\section*{DTrace scripts}
+
+The \code{dtrace} command also accepts a \code{-s} argument allowing a
+file to be specified as the source of the script to run.
+Scripts consist of a series of probes, predicates, and actions.
+Special probes, \code{BEGIN} and \code{END}, fire as the script starts up
+and terminates, and the function \code{exit()} can be used to terminate a
+script from an action.
+
+\subsection*{Profiling callouts}
+
+Here is a sample script you can use to profile time spent in kernel callouts
+(timed asynchronous events).
+At the start of the callout, a per-thread variable \code{cstart} records the
+timestamp that execution begins.
+When the callout ends, the \code{quantize} aggregation is used to insert the
+difference between the current time and the start time into a histogram.
+
+\begin{small}
+\begin{verbatim}
+callout_execute:::callout-start
+{
+        self->cstart = vtimestamp;
+}
+
+callout_execute:::callout-end
+{
+        @length = quantize(vtimestamp - self->cstart);
+}
+\end{verbatim}
+\end{small}
+
+\noindent
+Exercise: What would happen if we used \code{timestamp} or
+\code{walltimestamp} instead of \code{vtimestamp}?
+
+\subsection*{Profiling callouts over a 1-second interval}
+
+This script extends our previous script to keep track of time spent in
+particular callouts, identified by their function name
+(\code{arg0->c\_func}) over a one-second interval.
+Note the use of an associative array indexed by function name, the
+\code{sum} aggregation, and the use of a one-second timer tick to 
+print the aggregation using \code{printa()} and \code{clear} to reset the
+array for the next interval.
+
+\begin{small}
+\begin{verbatim}
+#pragma D option quiet
+
+callout_execute:::callout-start
+{
+        self->cstart = vtimestamp;
+}
+
+callout_execute:::callout-end
+{
+
+        @callouts[((struct callout *)arg0)->c_func] = sum(vtimestamp -
+            self->cstart);
+}
+
+tick-1sec
+{
+        printa("%40a %10@d\n", @callouts);
+        clear(@callouts);
+        printf("\n");
+}
+
+BEGIN
+{
+        printf("%40s | %s\n", "function", "nanoseconds per second");
+}
+\end{verbatim}
+\end{small}
+
+\noindent
+Exercise: How would we extend this script to not just add up all time spent by
+a particular callout function, but instead record a histogram of the execution
+times of each function over each second?
+
+\subsection*{Collect stack traces to privilege check failures}
+
+This script counts the number of unique stack traces leading to privilege
+failures, detected using the \code{priv} provider.
+
+\begin{small}
+\begin{verbatim}
+priv::priv_check:priv-err
+{
+        @traces[stack()] = count();
+}
+\end{verbatim}
+\end{small}
+
+\noindent
+Exercise: How would we modify this script to instead keep a count of
+privilege-check failures by system call?
+
+\section*{DTrace providers}
+
+The following DTrace providers are available on most FreeBSD systems; others
+may be available when specific modules are loaded.
+To list probes available from a provider, use \code{dtrace -l -P provider},
+where \textit{provider} is the provider name.
+
+\begin{description}
+\item[callout\_execute] The kernel's callout (timer) subsystem; used to
+  schedule asynchronous (and often recurring) events such as I/O timeouts and
+  TCP retransmission.
+  The two probes are \code{callout-start} and \code{callout-end}.
+
+\item[dtmalloc] DTrace kernel memory-allocation provider, which exposes probes
+  for allocation and freeing of various memory types.
+  The per-type probe names are \code{malloc} and \code{free}.
+  Note that this provider does not cover UMA (slab) allocations, only those by
+  the general kernel \code{malloc}.
+
+\item[dtrace] DTrace script events: \code{BEGIN}, \code{END}, and
+  \code{ERROR}.
+
+\item[fbt] Function Boundary Tracing (FBT): dynamically inserted probes in the
+  prologues and epilogues of most kernel functions.
+
+\item[io] Block I/O tracing; four probes: \code{start}, \code{done},
+  \code{wait-start}, and \code{wait-done}.
+
+\item[ip] Internet Protocol tracing; two probes \code{send} and
+  \code{receive} allow instrumentation of IP-layer send and receive events.
+
+\item[lockstat] Kernel lock profiling; probes for lock acquire, contention,
+  and release events across several kernel lock types: spinlocks, mutexes,
+  reader-writer locks, and shared-exclusive locks.
+
+\item[mac, mac\_framework] MAC Framework tracing: probes placed around dynamic
+  security-policy registration, object labelling, and access-control events.
+
+\item[nfscl] Probes for the Network File System (NFS) client: NFSv3 and NFSv4
+  RPC start/finish events, and also access and attribute cache events.
+
+\item[priv] Kernel privilege checks.
+
+\item[proc] Process events such as creation/destruction, \code{exec}, and
+  signal delivery.
+
+\item[profile] Timer-driven probes at various frequencies, either timed to
+  align with system clock ticks (\code{tick}) or to avoid aliasing with
+  clock ticks (\code{profile}).
+
+\item[sched] Kernel scheduler tracing; events as thread enqueue/dequeue,
+  priority changes, context switches to and from threads, preemption events,
+  thread sleep/wakeup.
+
+\item[sctp] Stream Control Transport Protocol (SCTP) events such as packet and
+  congestion-control events.
+
+\item[syscall] System Call tracing: \code{entry} and \code{return} probes
+  for each system call across all supported ABIs.
+
+\item[tcp] Transport Control Protocol (TCP) events such as connection
+  creation, state change, and packet send/receive.
+
+\item[udp] Unreliable Datagram Protocol (UDP) events: send and receive.
+
+\item[vfs] Virtual File System (VFS) events: abstract filesystem events above
+  the layer of the specific filesystem implementation including vnode
+  operations (VOPs) on individual files, but also name lookup and caching.
+
+\item[vm] Virtual Memory (VM): low-memory events.
+
+\item[xbb] Xen Block Backend events associated with serving block-storage
+  events from other Xen domains.
+\end{description}
+
+\section*{Favoured built-in variables}
+
+DTrace provides a large number of built-in variables that can be referenced by
+scripts; a detailed list can be found in the DTrace documentation (see
+\textit{L41 Readings}).
+
+\begin{description}
+\item[arg0..arg9, args[]] Arguments to the DTrace probe: for FBT entry, the
+  function's actual arguments; for FBT return, its return value as
+  \code{arg0}; for system calls, likewise arguments and return value; for
+  other probes, typically data-structure pointers such as a pointer to the
+  pertinent \code{callout} structure for \code{callout\_execute} probes.
+  Use \code{arg0}..\code{arg9} for untyped integer values, and
+  \code{args[]} for typed structures and pointers that can be dereferenced.
+
+\item[caller] The program counter where the probe fired.
+
+\item[cpu] The CPU number that the probe fired on.
+
+\item[cwd] The current thread's working directory.
+
+\item[errno] The error value of the last system call executed by the thread.
+
+\item[execname] The name of the executing binary.
+
+\item[pid] The process ID of the current process.
+
+\item[probefunc] The function name portion of the current probe's description.
+
+\item[probemod] The module name portion of the current probe's description.
+
+\item[probename] The name portion of the current probe's description.
+
+\item[tid] The thread ID of the current thread.
+
+\item[timestamp] The current time in nanoseconds, from an arbitrary point.
+
+\item[vtimestamp] The current virtual time of the thread, in nanoseconds,
+  from an arbitrary point.
+
+\item[walltimestamp] The number of nanoseconds since Epoch.
+\end{description}
+
+\section*{DTrace/armv7 caveats}
+
+DTrace on the armv7 architecture has a number of limitations that it is
+important to be aware of when using it on the BeagleBone Black board:
+
+\begin{itemize}
+\item \texttt{dtrace -c} does not work on armv7.
+\item Only the first four arguments to each DTrace probe are available.
+\end{itemize}
+
+\section*{DTrace glossary}
+
+\begin{description}
+\item[provider] DTrace \textit{providers} implement classes of events that can
+  be instrumented using DTrace; for example, the \textit{Function Boundary
+  Tracing} provider allows the prologues and epilogues of all kernel functions
+  to be instrumented, and the \textit{System Call} provider similarly allows
+  all system-call entry and return events to be instrumented.
+
+\item[probe] A \textit{probe} is an event that can be instrumented and traced
+  -- e.g., a particular function calling or returning, the profiler firing, a
+  specific named system call entering.
+  Probes have uniquely identifying names in the form
+  \code{provider:module:function:name}.
+  Fields in probe names may be omitted to match multiple probes.
+
+\item[module] Some DTrace providers further include the name of a kernel
+  module or component in the \textit{module} field, making it easier to narrow
+  down the set of probes to a particular subsystem.
+  For example, the \textit{Network File System} provider exposes the NFS
+  version number as the module component of its probe names, and the
+  \textit{System Call} provider includes the ABI name.
+
+\item[function] DTrace probes likewise include a \textit{function name} that
+  further identifies the probe that will fire; in the case of the
+  \textit{Function Boundary Tracing} provider, the \textit{function} will be
+  the name of the function instrumented, whereas the actual probe name will be
+  \code{entry} or \code{return}.
+
+\item[consumer] A DTrace \textit{consumer} is any program that interacts with
+  DTrace to monitor system behaviour.
+  For our purposes, this is the \code{dtrace} command-line tool, but others
+  also exist, such as the \code{lockstat} tool.
+
+\item[predicate] DTrace \textit{predicates} allow a script to inspect the
+  run-time environment to make a determination as to whether an action should
+  be executed as a result of a probe firing.
+  This allows tracing of an event to be predicated on environmental factors
+  such as what process is executing or prior events that have occurred in the
+  same system call.
+
+\item[action] DTrace script \textit{actions} are sequences of tracing
+  operations to perform when a probe fires and is accepted by a predicate.
+  This might include writing data to a trace buffer, but can also include
+  updating variables or, for certain classes of scripts, changing the
+  execution of the kernel.
+
+\item[variables] DTrace \textit{variables} allow state to be recorded and
+  acted on within scripts; variables can be \textit{global}, affecting all
+  instances of execution predicates and actions, \textit{thread-local}
+  (\code{self}), visible only to the current thread, and
+  \textit{clause-local} (\code{this}), visible only to the current action.
+
+  Thread-local variables are especially useful, as they can be used to record
+  sequential operations by a thread that determine later tracing activities.
+  For example, a per-thread variable might be used to store the name of the
+  system call in execution so that later, when other operations are recorded,
+  the system-call name is available to be included in a trace entry, or a
+  decision to trace information might be conditioned on which system call is
+  in flight.
+
+\item[scalar variables] \textit{Scalar variables} are simple values
+  associated with names specified by the programmer.
+  Scalers can hold values of various types, including integers, pointers, and
+  strings, but also instances of data structures originating in the program
+  being traced.
+  For example, \code{x = 5} or \code{self->syscall = probefunc}.
+
+\item[associative arrays] \textit{Associative arrays} allow sets of keys and
+  associated values to be stored in a single variable.
+  For example, \code{self->functions[probefunc]++} or
+  \code{functions[execname,probefunc]++}.
+
+\item[built-in variables] DTrace includes a number of \textit{built-in
+  variables} that hold information about the context for a probe, such as the
+  current process ID, processor ID, executable name, user ID, etc.
+
+\item[external variables] It is possible for a DTrace script to refer to
+  kernel variables, which can be done by prefixing the variable name with the
+  \code{`} character.
+  For example, \code{`bootflags}.
+
+\item[aggregations] \textit{Aggregations} are special global variables that
+  efficiently collect and reduce large volumes in data in a scalable way.
+  For example, the \code{@count} aggregating function allows counters of
+  events to be efficiently implemented in the presence of multiple cores: each
+  core maintains its own instance of the counter, avoiding locking when
+  updating the counter on any particular core, and DTrace will combine those
+  per-core values into a single global value before presenting it to the user.
+  Other aggregating functions include \code{sum}, \code{avg},
+  \code{min}, \code{max}, \code{lquantize}, and \code{quantize}.
+  The latter two aggregations record distribution information, allowing
+  histograms to be displayed by DTrace.
+
+\item[speculation] DTrace scripts may include \textit{speculation}, which
+  allows a set of operations to be performed conditional on some later event
+  that will cause them to \textit{commit} (or \textit{abort}).
+  For example, a script might speculatively collect argument data during a
+  system call, but only commit those recorded arguments to the trace if the
+  system call returns a specific error.
+
+\item[functions] DTrace \textit{functions} perform a variety of activies,
+  including appending to the trace (\code{trace()}), printing out values using
+  format strings (\code{printf()}, or aggregations using \code{printa()}), or
+  gathering stack traces (\code{stack()}).
+
+\item[destructive scripts] Most DTrace scripts will simply inspect execution;
+  however, it is also possible to modify kernel execution -- e.g., to change
+  scheduling, or overwrite in-memory values.
+  Such scripts are normally used in testing -- e.g., to trigger kernel edge
+  cases that are otherwise hard to reach.
+  This includes stopping the running process, sending signals, overwriting
+  memory in user processes, or panicking the kernel to allow further debugging
+  using a kernel debugger.
+  For the purposes of this course, use of destructive scripts is not
+  recommended, as incautious use can easily lead to system crashes or data
+  corruption.
+\end{description}
+
+\section*{Further information}
+
+See the module reading list for further information; the \code{dtrace} man
+page, FreeBSD handbook, and World Wide Web are all useful reference material.
+The DTrace book by Gregg and Mauro has a more tutorial-like structure, and is
+strongly recommended.
+
+\end{document}

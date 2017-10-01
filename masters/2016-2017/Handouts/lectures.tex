@@ -1,0 +1,207 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+
+\begin{document}
+\title{L41: Lectures}
+\author{Dr Robert N.M. Watson}
+\date{Michaelmas Term 2016}
+\maketitle
+
+\noindent
+L41 consists of six 1-hour lectures and five 2-hour labs.
+This document provides a rough outline for the lectures, but also the brief
+10--20-minute `lecturelets' at the start of each lab.
+
+\subsection*{Lecture 1: Advanced Operating Systems: Tracing, Analysis, and
+  Experimentation}
+
+\begin{enumerate}
+  \item Getting started
+  \item What is an operating system?
+  \item General-purpose operating systems
+  \item Other kinds of operating systems
+  \item What does an operating system do?
+  \item Why study operating systems?
+  \item Where is the OS research?
+  \item What are the research questions?
+  \item Teaching operating systems
+  \item Aims of the module
+  \item Prerequisites
+  \item Module structure
+  \item Rough module schedule and decomposition
+  \item The platform
+  \item Labs and lab reports
+  \item Module texts - core material
+  \item Module texts - supplemental material
+\end{enumerate}
+
+\subsection*{Lecture 2: Kernels and Tracing}
+
+\begin{enumerate}
+  \item Dynamic tracing with DTrace
+  \item DTrace scripts
+  \item D Intermediate Format (DIF)
+  \item Some kernel DTrace providers in FreeBSD
+  \item Tracing kernel malloc() calls
+  \item Aggregations
+  \item Profiling kernel malloc() calls by csh
+  \item DTrace: implementation
+  \item The `probe effect'
+  \item Probe effect example: dd execution time
+  \item Probe effect example 1: Memory allocation
+  \item Probe effect example 2: Locking operations
+  \item Probe effect example 2: Limiting to dd?
+  \item Probe effect example 3: Locking stack traces
+  \item The kernel: ``Just a C program''?
+  \item The kernel: not just any C program
+  \item Spelunking the kernel
+  \item How work happens in the kernel
+  \item Work processing and distribution
+\end{enumerate}
+
+\subsection*{Lab 1 - Lecturelet: I/O}
+
+\begin{enumerate}
+  \item The benchmark
+  \item Exploratory questions
+  \item Experimental questions for lab report
+  \item DTrace scripts
+  \item Some kernel DTrace providers in FreeBSD
+  \item Aggregations
+  \item Counting kernel read() system calls
+  \item A few cautions
+  \item A few other useful things
+\end{enumerate}
+
+\subsection*{Lecture 3: The Process Model (1)}
+
+\begin{enumerate}
+  \item The process model: 1970s foundations
+  \item The process model: today
+  \item The UNIX process life cycle
+  \item Process model evolution
+  \item Process address space: dd
+  \item ELF binaries
+  \item Virtual memory (quick but painful primer)
+  \item Role of the run-time linker (rtld)
+  \item Arguments and ELF auxiliary arguments
+  \item Traps and system calls
+\end{enumerate}
+
+\subsection*{Lecture 4: The Process Model (2)}
+
+\begin{enumerate}
+  \item More about the process model
+  \item System calls
+  \item System-call synchrony
+  \item System-call asynchrony
+  \item System-call invocation from user to kernel
+  \item The system-call table: syscalls.master
+  \item Security and reliability
+  \item System-call entry -- the guts: syscallenter
+  \item getauid: return process audit ID
+  \item System-call return -- the guts: syscallret
+  \item System calls in practice: dd
+  \item Traps in practice: dd
+  \item So: back to virtual memory
+  \item Last time: virtual memory (quick but painful primer)
+  \item A (kernel) programmer model for virtual memory
+  \item Mach VM in other operating systems
+\end{enumerate}
+
+\subsection*{Lab 2 - Lecturelet: IPC}
+
+\begin{enumerate}
+  \item Lab 2 - Kernel implications of IPC
+  \item Recall: A (kernel) programmer model for VM
+  \item The Mach VM fault handler (vm\_fault)
+  \item The benchmark
+  \item Exploratory questions - baseline performance
+  \item Experimental questions for the lab report
+  \item This lab session
+\end{enumerate}
+
+\subsection*{Lab 3 - Lecturelet: Micro-architectural implications of IPC}
+
+\begin{enumerate}
+  \item Lab 3 - Micro-architectural implications of IPC
+  \item Hardware performance counters
+  \item Sketch of ARM Cortex A8 memory hierarchy
+  \item The benchmark -- now with PMC
+  \item Example: Profile memory instructions
+  \item Exploratory questions
+  \item Experimental questions for the lab report
+  \item This lab session
+\end{enumerate}
+
+\subsection*{Lecture 5: The Network Stack (1)}
+
+\begin{enumerate}
+  \item Introduction to the Network Stack
+  \item A key OS function: networking
+  \item The Berkeley Sockets API
+  \item Early BSD network-stack design principles
+  \item FreeBSD network-stack design principles
+  \item Memory flow in hardware
+  \item Memory flow in software
+  \item The mbuf abstraction
+  \item Local send/receive paths in the network stack
+  \item Forwarding path in the network stack
+  \item Work dispatch: input path
+  \item Work dispatch: output path
+  \item Work dispatch: TOE path
+  \item netmap: a novel framework for fast packet I/O
+  \item Network Stack Specialization for Performance
+\end{enumerate}
+
+\subsection*{Lecture 6: The Network Stack (2)}
+
+\begin{enumerate}
+  \item The Transmission Control Protocol (TCP)
+  \item TCP goals and properties
+  \item TCP congestion control and avoidance
+  \item TCP time/sequence graphs
+  \item BSD/FreeBSD TCP implementation evolution
+  \item Lect 5: Local send/receive paths in the network stack
+  \item Data structures - sockets, control blocks
+  \item Denial of Service (DoS) - state minimisation
+  \item TCP-connection lookup tables
+  \item Lect 5: Work dispatch: input path
+  \item An Evaluation of Network Stack Parallelization Strategies in Modern
+    Operating Systems
+  \item FreeBSD connection groups, RSS
+  \item Performance: dispatch model and locking
+  \item From architectural to micro-architectural optimisation
+  \item Labs 4 + 5: TCP
+\end{enumerate}
+
+\subsection*{Lab 4 - Lecturelet: The TCP State Machine}
+
+\begin{enumerate}
+  \item Lab 4 - The TCP State Machine
+  \item Lect 6: The Transmission Control Protocol (TCP)
+  \item Lect 6: TCP goals and properties
+  \item Loopback interface, IPFW, and DUMMYNET
+  \item TCP in the IPC benchmark
+  \item DTrace probes
+  \item Exploratory questions
+  \item Experimental questions for the lab report
+  \item This lab session
+\end{enumerate}
+
+\subsection*{Lab 5 - Lecturelet: TCP latency and bandwidth}
+
+\begin{enumerate}
+  \item Lab 5 - TCP latency and bandwidth
+  \item Lect 6: TCP goals and properties
+  \item Lect 6: TCP congestion control and avoidance
+  \item Lect 6: TCP time/sequence graphs
+  \item Lect 6: Data structures - sockets, control blocks
+  \item tcpcb sender-side data-structure fields
+  \item Exploratory questions
+  \item Experimental questions for the lab report
+  \item This lab session
+\end{enumerate}
+
+\end{document}

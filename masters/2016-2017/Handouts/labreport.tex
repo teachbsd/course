@@ -1,0 +1,163 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+
+\begin{document}
+\title{L41: Lab Reports}
+\author{Dr Robert N.M. Watson}
+\date{Michaelmas Term 2016}
+\maketitle
+
+The purpose of a \textit{laboratory report}, is to document an experiment, its
+results, and its interpretation.
+The exact contents and format of a lab report vary by discipline but the
+principle is common across both the hard and social sciences, and will
+generally include: the motivations and starting assumptions of the experiment
+(to frame later design decisions); the goal of the experiment (i.e., the
+hypothesis); the experimental setup itself; the results and their
+interpretation (including sources of error); any conclusions; and a
+comparison with related work in the field.
+Computer science, and especially systems research, adopts many of these
+elements, although not always overtly in the format of a lab report.
+In L41, we use the genre of the lab report to help impose structure on our
+experimental work, and as the primary means of assessment.
+
+You will write three lab reports as part of the course: one `practice run'
+derived from the I/O tracing exercises in the first submodule, and two
+assessed reports (weighted at 50\% each) describing IPC and networking
+experiments from the remaining submodules.
+The first lab report is intended to help you develop and get feedback on your
+report writing style so that assessment of later reports can focus on
+experimental setup, data analysis, and conclusions.
+As the lab reports are the primary form of assessment for the module, it is
+important that you invest a significant amount of time in writing and refining
+the report, paying attention to detail and presentation.
+This is especially true for the `practice run', which is your opportunity to
+correct errors and omissions in your approach without an impact on your final
+mark.
+
+\section*{Contents}
+
+For the purposes of L41, we require that lab reports (moderately) faithfully
+follow this structure:
+
+\begin{description}
+\item[Title page] Experiment name; author name; date.
+  A 1-paragraph abstract will provide a succinct summary of the report
+  including the nature of the experiment and conclusions that have been drawn.
+  (1 page)
+\item[Introduction] Frames the lab report as well as provides its context and
+  motivations. (1--2 paragraphs)
+\item[Experimental setup and methodology] An exploration of the goals,
+  hypotheses, experimental setup (including platform details), procedure
+  used in the experiment, and details of any steps taken to mitigate potential
+  error or problems; a figure may be appropriate. (1--2 page including
+  figures)
+\item[Results and discussion]
+  The results obtained, graphs illustrating those results, and an exploration
+  and interpretation of the results including important artefacts, validity of
+  the results, and conclusions they lead us to.
+  Tables and figures required to explain the results should be present in all
+  reports; in most cases, performance graphs will be expected, but in some
+  cases, it may also be suitable to include state-machine diagrams.
+  This is the body of the report. (3--4 pages including figures)
+\item[Conclusion]
+  A summation of the results and thoughts on potential future directions.
+  (1--2 paragraphs)
+\item[References]
+  For our purposes, references to material that contextualises the work, as
+  well as to pertinent readings we have done and a brief literature review;
+  outside of this course, we would also expect a review of similar work by
+  others, especially where results or methodology differ.
+\item[Appendices]
+  Additional material that supplements prior sections -- e.g., it might be
+  desirable, in explaining material in the body, to reference content such as
+  scripts to perform experiments, additional data tables, or more detailed
+  illustrations of an experimental setup.
+\end{description}
+
+Lab reports will typically be 5-10 pages including figures but excluding
+appendices.
+Appendices should be included only where they improve understanding of the
+body of the report -- simple DTrace scripts are not appropriate to include,
+but should they be extended (for example) to mitigate a surprising form of
+measurement error, it may be appropriate to include them in an appendix that
+is referenced from discussion in the body.
+
+\section*{Style and presentation}
+
+Lab reports must be clearly written, spell checked, and formatted to make them
+easy for the reader to follow.
+Given length limitations, they will of necessity be high-level presentations
+of our experiments, and cannot explore every detail.
+Particular attention should be paid to graphs and tables that will present the
+results: axes must be labelled, scales should be selected with care to avoid
+misunderstanding, and if, for example, there are clear artefacts of interest,
+then an additional graph may be appropriate to explore those in greater
+detail.
+All graphs must be described in the body of the text, and also have a
+suitable (but brief) caption.
+In general, it will be important to include error bars or other error
+information, and explain when confidence intervals have been used.
+
+LaTeX will be used, ideally using the \textbf{article} document class and 10pt
+times font; use of the course template for lab reports is recommended, but not
+required.
+The precise graphing package is up to you; all graphs must be vector-based
+rather than raster images, and must be prepared such that they are clear even
+if printed in black and white.
+It may be appropriate to use diagramming packages such as \textbf{tikz}, code
+rendering via the \textbf{listings} package,  and additional tools such as
+\textbf{matplotlib}, \textbf{R}, and \textbf{graphviz} to analyse and present
+results.
+
+Students are cautioned that many of these tools are complex and subtle, and
+when used incautiously have a tendency to consume all available time.
+If you run into difficulties, seek help from the course instructor or one of
+the teaching assistants -- and when in doubt, avoid exciting-sounding features
+in LaTeX!
+
+\section*{Assessment}
+
+\begin{description}
+\item[$<60\%$] Below the pass mark: extremely poor (or incomplete)
+  experimental procedure or writeup that might include an incoherent
+  description of the work, poor experimental practice that leads to incorrect
+  results, failure to discuss potential sources of error, and/or poor data
+  analysis that draws incorrect conclusions despite clear evidence to the
+  contrary.
+  This marking range will also be used if there is insufficient originality.
+\item[$>=60\%$, $<75\%$] Pass but below distinction: adequately performed
+  experimental procedure and writeup, but with a few (but not many) of the
+  following problems:
+  (1) the experimental approach will have been roughly right, but failed to
+  avoid potential sources of error, used inadequate runs to manage variance,
+  or failed to pursue an important behaviour or effect;
+  (2) the writeup will have drawn reasonable conclusions, but failed to make
+  proper use of statistics, failed to explore sources of error, or failed to
+  investigate a surprising effect or result; or
+  (3) graphs will present useful results but are unclear or disagree with the
+  experimental analysis.
+\item[$>=75\%$] Pass with distinction; most or all of the following hold:
+  a superior writing style and clarity; strong experimental procedure and
+  error analysis, in which surprising results or artefacts are adequately
+  illustrated via graphs and explained in the text; and strong or even new
+  insights into performance are gained.
+\end{description}
+
+\section*{Collaboration}
+
+While collaborating on experimentation itself is permitted (and even
+encouraged), students must independently write up and submit lab reports.
+You will need to employ your own discretion, but a reasonable approach might
+have pairs of students collaborate to understand the target software, work
+together to develop experimental setups and scripts, and jointly run initial
+experiments to debug them together.
+Pairs might then part ways to complete the experiments, analyse the data and
+actual error, produce any graphs, and write up the results.
+Data in appendices of reports may indeed turn out to be substantially similar
+between lab partners as a result of collaboration on the setup and design
+choices to scripts, but excessive similarity of graphs, text, and analysis
+may be penalised as plagiarism.
+
+\end{document}

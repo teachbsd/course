@@ -1,0 +1,406 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{url}
+
+\begin{document}
+
+\title{L41: Lab 2 - Kernel Implications of IPC}
+\author{Dr Robert N.M. Watson
+	\and
+	Dr Graeme Jenkinson}
+\date{Michaelmas Term 2016}
+\maketitle
+
+%
+% Key methodology: how to trace stuff with DTrace; probe effect; benchmark
+% reproducibility; statistical significance.
+%
+% Key kernel concepts: system calls, other traps, kernel memory allocation,
+% (perhaps) kernel threads, I/O behaviour, different types of linking, the
+% overhead imposed by filesystems.
+%
+
+\noindent
+The goals of this lab are to:
+
+\begin{itemize}
+\item Continue to gain experience tracing user-kernel interactions via system calls and traps
+\item Explore the performance of varying IPC models, buffer sizes, and process models
+% \item Measure the probe effect and explore mitigation techniques such as sampling
+\item Gather data to support writing your first assessed lab report
+\end{itemize}
+
+\noindent
+You will do this by using DTrace to analyse the behaviour of a potted,
+kernel-intensive IPC benchmark.
+
+\section*{Background: POSIX IPC objects}
+
+POSIX defines several types of Inter-Process Communication (IPC) objects,
+including pipes (created using the \texttt{pipe()} system call) and sockets
+(created using the \texttt{socket()} and \texttt{socketpair()} system calls).
+
+\begin{description}
+\item[Pipes] are used most frequently between pairs of processes in a UNIX
+\textit{process pipeline}: a chain of processes started by a single command
+line, whose output and input file descriptors are linked.
+Although pipes can be set up between unrelated processes, the primary means of
+acquiring a pipe is through inheritance across \texttt{fork()}, meaning that
+they are used between closely related processes (e.g., with a common parent
+process).
+
+\item[Sockets] are used when two processes are created in independent contexts
+and must later rendezvous -- e.g., via the filesystem, but also via TCP/IP.
+In typical use, each endpoint process creates a socket via the
+\texttt{socket()} system call, which are then interconnected through use of
+\texttt{bind()}, \texttt{listen()}, \texttt{connect()}, and \texttt{accept()}.
+However, there is also a \texttt{socketpair()} system call that returns a pair
+of interconnected endpoints in the same style as \texttt{pipe()} -- convenient
+for us as we wish to compare the two side-by-side.
+\end{description}
+
+Both pipes and sockets can be used to transmit ordered byte streams: a
+sequence of bytes sent via one file descriptor that will be received reliably
+on the other without loss or reordering.
+As file I/O, the \texttt{read()} and \texttt{write()} system calls can be used
+to read and write data on file descriptors for pipes and sockets.
+It is useful to know that these system calls are permitted to return
+\textit{partial reads} and \textit{partial writes}: i.e., a buffer of some
+size (e.g., 1k) might be passed as an argument, but only a subset of the
+requested bytes may be received or sent, with the actual size returned via the
+system call's return value.
+This may happen if the in-kernel buffers for the IPC object are too small for
+the full amount, or if \textit{non-blocking I/O} is enabled.
+When analysing traces of IPC behaviour, it is important to consider both the
+size of the buffer passed and the number of bytes returned in evaluating the
+behaviour of the system call.
+
+You may wish to read the FreeBSD \texttt{pipe(2)} and \texttt{socketpair(2)}
+manual pages to learn more about these APIs before proceeding with the lab.
+
+\section*{The benchmark}
+
+As with our earlier I/O benchmark, the IPC benchmark is straightforward: it
+sets up a pair of IPC endpoints referencing a shared pipe or socket, and then
+performs a series of \texttt{write()} and \texttt{read()} system calls on the
+file descriptors to send (and then receive) a total number of bytes of data.
+Data will be sent using a smaller userspace buffer size -- although as hinted
+above, there is no guarantee that a full user buffer will be sent or received
+in any individual call.
+Also as with the I/O benchmark, there are several modes of operation:
+sending and receiving within a single thread, a pair of threads in the same
+process, or between two threads in two different processes.
+
+The benchmark will set up any necessary IPC objects, threads, and processes,
+sample the start time using the \texttt{clock\_gettime()} system call, perform
+the IPC loop (perhaps split over two threads), and then sample the finish time
+using the \texttt{clock\_gettime()} system call.
+Optionally, both the average bandwidth across the IPC object, and also more
+verbose information about the benchmark configuration, may be displayed.
+Both statically and dynamically linked versions of the binary are provided:
+\texttt{ipc-static} and \texttt{ipc-dynamic}.
+
+\subsection*{Compiling the benchmark}
+
+%You will need to copy the lab bundle to your BeagleBone Black, untar it, and
+%build it before you can begin work.
+%Once you have configured the BBB so that you can log in (see \textit{L41: Lab
+%Setup}), you can use SSH to copy the bundle to the BBB:
+
+%\begin{verbatim}
+%scp /anfs/www/html/teaching/1516/L41/labs/ipc.tgz guest@192.168.141.100:/data
+%\end{verbatim}
+
+%\noindent
+%Or via the web:
+
+%\noindent
+%\url{https://www.cl.cam.ac.uk/teaching/1516/L41/labs/ipc.tgz}
+
+%\noindent
+The laboratory IPC bundle (ipc.tgz) has been preinstalled onto the BeagleBone
+Black (BBB) SD card image.
+However, you will need to untar and build it before you can begin work.
+Once you have configured the BBB so that you can log in (see \textit{L41: Lab
+Setup}), untar and build the bundle:
+
+\begin{verbatim}
+# cd /data
+# tar -xzf ipc.tgz
+# cd ipc
+# make
+# cd ..
+\end{verbatim}
+
+\subsection*{Running the benchmark}
+
+Once built, you can run the benchmark binaries as follows, with command-line
+arguments specifying various benchmark parameters:
+
+\begin{verbatim}
+# ipc/ipc-static
+\end{verbatim}
+
+\noindent
+or:
+
+\begin{verbatim}
+# ipc/ipc-dynamic
+\end{verbatim}
+
+If you run the benchmark without arguments, a small usage statement will be
+printed, which will also identify the default IPC object type, IPC buffer, and
+total IPC sizes configured for the benchmark.
+As in the prior lab, you will wish to be careful to hold most variables
+constant in order to isolate the effects of specific variables.
+For example, you might wish the vary the IPC object type while holding the
+total IPC size constant.
+
+\subsection*{Required operation argument}
+
+Specify the mode in which the benchmark should operate:
+
+\begin{description}
+\item[1thread] Run the benchmark entirely within one thread; note that, unlike
+  other benchmark configurations, this mode interleaves the IPC calls and must
+  place the file descriptors into non-blocking mode or risk deadlock.
+  This may have observable effects on the behaviour of the system calls with
+  respect to partial reads or writes.
+
+\item[2thread] Run the benchmark between two threads within one process: one
+  as a `sender' and the other as a `receiver', with the sender capturing the
+  first timestamp, and the receiver capturing the second.
+  System calls are blocking, meaning that if the in-kernel buffer fills
+  during a \texttt{write()}, then the sender thread will sleep; if the
+  in-kernel buffer empties during a \texttt{read()}, then the receiver thread
+  will sleep.
+
+
+\item[2proc] As with the \texttt{2thread} configuration, run the benchmark in
+  two threads -- however, those threads will be in two different processes.
+  The benchmark creates a second process using \texttt{fork()} that will run
+  the sender.
+  System calls in this variation are likewise blocking.
+\end{description}
+
+\subsection*{Optional I/O flags}
+
+\begin{description}
+\item[-b \textit{buffersize}] Specify an alternative userspace IPC buffer size
+  in bytes -- the amount of memory allocated to hold to-be-sent or received
+  IPC data.
+  The same buffer size will be used for both sending and receiving.
+  The total IPC size must be a multiple of buffer size.
+
+\item[-i \textit{ipctype}] Specify the IPC object to use in the benchmark:
+  \texttt{pipe} or \texttt{local}.
+
+\item[-t \textit{totalsize}] Specify an alternative total IPC size in bytes.
+  The total IPC size must be a multiple of userspace IPC buffer size.
+
+\item[-B] Run in \texttt{bare mode}: disable normal quiescing activities such
+  as using \texttt{sync()} to cause the filesystem to synchronise before the
+  IPC loop runs, and using \texttt{sleep()} to await terminal-I/O quietude.
+  This will be the more appropriate mode in which to perform whole-program
+  analysis but may lead to greater variance if simply analysing the IPC loop.
+
+\item[-s] When operating on a socket, explicitly set the in-kernel
+  socket-buffer size to match the userspace IPC buffer size rather than using
+  the kernel default.
+  Note that per-process resource limits will prevent use of very large buffer
+  sizes.
+\end{description}
+
+\subsection*{Terminal output flags}
+
+\noindent
+The following arguments control terminal output from the benchmark; remember
+that output can substantially change the performance of the system under test,
+and you should ensure that output is either entirely suppressed during tracing
+and benchmarking, or that tracing and benchmarking only occurs during a period
+of program execution unaffected by terminal I/O:
+
+\begin{description}
+\item[-q] \textit{Quiet mode} suppress all terminal output from the benchmark,
+  which is preferred when performing whole-program benchmarking.
+
+\item[-v] \textit{Verbose mode} causes the benchmark to print additional
+  information, such as the time measurement, buffer size, and total IPC size.
+\end{description}
+
+\subsection*{Example benchmark commands}
+
+This command performs a simple IPC benchmark using a pipe and default
+userspace IPC buffer and total IPC sizes within a single thread of a single
+process:
+
+\begin{verbatim}
+# ipc/ipc-static -i pipe 1thread
+\end{verbatim}
+
+\noindent
+This command performs the same pipe benchmark, but between two threads of the
+same process:
+
+\begin{verbatim}
+# ipc/ipc-static -i pipe 2thread
+\end{verbatim}
+
+\noindent
+And this command does so between two processes:
+
+\begin{verbatim}
+# ipc/ipc-static -i pipe 2proc
+\end{verbatim}
+
+\noindent
+This command performs a socket-pair benchmark, and requests non-default
+socket-buffer sizes synchronised to a userspace IPC buffer size of 1k:
+
+\begin{verbatim}
+# ipc/ipc-static -i local -s -b 1024 2thread
+\end{verbatim}
+
+\noindent
+As with the I/O benchmark, additional information can be requested using
+\textit{verbose mode}:
+
+\begin{verbatim}
+# ipc/ipc-static -v -i pipe 1thread
+\end{verbatim}
+
+\noindent
+And, likewise, all output can be suppressed, and \textit{bare mode} can be
+used, for whole-program analysis:
+
+\begin{verbatim}
+# ipc/ipc-static -q -B -i pipe 1thread
+\end{verbatim}
+
+\section*{Note on kernel configuration}
+
+By default, the kernel limits the maximum per-socket socket-buffer size that
+can be configured, in order to avoid resource starvation.
+You will need to tune the kernel's default limits using the following command,
+run as root, prior to running benchmarks.
+Note that this should be set before any benchmarks are run, whether or not
+they are explicitly configuring the socket-buffer size, as the limit will also
+affect socket-buffer auto-sizing.
+
+\begin{verbatim}
+sysctl kern.ipc.maxsockbuf=33554432
+\end{verbatim}
+
+\section*{Notes on using DTrace}
+
+On the whole, this lab will be concerned with just measuring the IPC loop,
+rather than whole-program behaviour.
+As in the last lab, it is useful to know that the system call
+\texttt{clock\_gettime} is both run immediately before, and immediately after,
+the IPC loop.
+In this benchmark, these events may occur in different threads or processes,
+as the sender performs the initial timestamp before transmitting the first
+byte over IPC, and the receiver performs the final timestamp after receiving
+the last byte over IPC.
+You may wish to bracket tracing between a return probe for the former, and an
+entry probe for the latter; see the notes from the last lab for an example.
+
+As with the last lab, you will want to trace the key system calls of the
+benchmark: \texttt{read()} and \texttt{write()}.
+For example, it may be sensible to inspect \texttt{quantize()} results for
+both the execution time distributions of the system calls, and the amount of
+data returned by each (via \texttt{arg0} in the system-call return probe).
+You will also want to investigate scheduling events using the \texttt{sched}
+provider.
+This provider instruments a variety of scheduling-related behaviours, but it
+may be of particular use to instrument its \texttt{on-cpu} and
+\texttt{off-cpu} events, which reflect threads starting and stopping
+execution on a CPU.
+You can also instrument \texttt{sleep} and \texttt{wakeup} probes to trace
+where threads go to sleep waiting for new data in an empty kernel buffer (or
+for space to place new data in a full buffer).
+When tracing scheduling, it is useful to inspect both the process ID
+(\texttt{pid}) and thread ID (\texttt{tid}) to understand where events are
+taking place.
+
+By its very nature, the probe effect is hard to investigate, as the probe
+effect does, of course, affect investigation of the effect itself!
+However, one simple way to approach the problem is to analyse the results of
+performance benchmarking with and without DTrace scripts running.
+When exploring the probe effect, it is important to consider not just the
+impact on bandwidth average/variance, but also on systemic behaviour: for
+example, when performing more detailed tracing, causing the runtime of the
+benchmark to increase, does the number of context switches increase, or the
+distribution of \texttt{read()} return values?
+In general, our interest will be in the overhead of probes rather than the
+overhead of terminal I/O from the DTrace process -- you may wish to suppress
+that output during the benchmark run so that you can focus on probe overhead.
+
+\section*{Notes on benchmark}
+
+As with the prior lab, it is important to run benchmarks more than once to
+collect a distribution of values, allowing variance to be analysed.
+You may wish to discard the first result in a set of benchmark runs as the
+system will not yet have entered its steady state.
+Do be sure that terminal I/O from the benchmark is not included in tracing or
+time measurements (unless that is the intent).
+
+\section*{Exploratory questions}
+
+These questions are intended to help you understand the behaviour of the IPC
+benchmark, and may provide supporting evidence for your experimental
+questions.
+However, they are just suggestions -- feel free to approach the problem
+differently!
+These questions do not need to be addressed in your lab report.
+
+\begin{enumerate}
+  \item How do the six basic modes of the benchmark compare in terms of
+    IPC throughput: \{1thread, 2thread, 2proc\} $\times$ \{pipe, socket\}?
+  \item How do distributions of \texttt{read()} and \texttt{write()}
+    system-call return values vary from one another within one benchmark?
+    Between different benchmark configurations?
+  \item How does setting socket-buffer size impact performance for the
+    socket configuration?
+  \item How much time is spent in system calls for the pipe vs. socket
+    benchmarks for the default buffer size and total IPC size?
+  \item How does the number of context switches vary between the pipe and
+    socket benchmarks, both with and without socket-buffer size tuning?
+\end{enumerate}
+
+\section*{Experimental questions (part 1)}
+
+You will receive a separate handout during the next lab describing \textit{Lab
+Report 2}; however, this description will allow you to begin to prepare for
+the assignment, which will also depend on the outcome of the next lab.
+Your lab report will compare several configurations of the IPC benchmark,
+exploring (and explaining) performance differences between them.
+Do ensure that your experimental setup suitably quiesces other activity on the
+system, and also use a suitable number of benchmark runs; you may wish to
+consult the \textit{FreeBSD Benchmarking Advice} wiki page linked to from the
+module's reading list for other thoughts on configuring the benchmark setup.
+The following questions are with respect to a fixed total IPC size with a
+statically linked version of the benchmark, and refer only to IPC-loop, not
+whole-program, analysis.
+Using \texttt{2thread} and \texttt{2proc} modes, explore how varying IPC model
+(pipes, sockets, and sockets with \texttt{-s}) and IPC buffer size affect
+performance:
+
+\begin{itemize}
+  \item How does increasing IPC buffer size uniformly change performance
+    across IPC models -- and why?
+  \item Is using multiple threads faster or slower than using multiple
+    processes?
+\end{itemize}
+
+\noindent
+Graphs and tables should be used to illustrate your measurement results.
+Ensure that, for each question, you present not only results, but also a
+causal explanation of those results -- i.e., why the behaviour in question
+occurs, not just that it does.
+For the purposes of graphs in this assignment, use achieved bandwidth, rather
+than total execution time, for the Y axis, in order to allow you to more
+directly visualise the effects of configuration changes on efficiency.
+
+\end{document}

@@ -1,0 +1,470 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{fullpage}
+\usepackage{times}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{float}
+
+\graphicspath{ {images/} }
+
+\def\signed #1{{\leavevmode\unskip\nobreak\hfil\penalty50\hskip2em
+  \hbox{}\nobreak\hfil(#1)%
+  \parfillskip=0pt \finalhyphendemerits=0 \endgraf}}
+
+\newsavebox\mybox
+\newenvironment{aquote}[1]
+  {\savebox\mybox{#1}\begin{quote}}
+  {\signed{\usebox\mybox}\end{quote}}
+
+\begin{document}
+
+\title{L41: Lab 1 - Getting Started with Kernel Tracing - I/O}
+\author{Dr Robert N.M. Watson
+	\and
+	Dr Graeme Jenkinson}
+\date{Michaelmas Term 2016}
+\maketitle
+
+%
+% Key methodology: how to trace stuff with DTrace; probe effect; benchmark
+% reproducibility; statistical significance.
+%
+% Key kernel concepts: system calls, other traps, kernel memory allocation,
+% (perhaps) kernel threads, I/O behaviour, different types of linking, the
+% overhead imposed by filesystems.
+%
+
+\noindent
+The goals of this lab are to:
+
+\begin{itemize}
+\item Introduce you to our experimental environment and DTrace
+\item Have you explore user-kernel interactions via system calls and traps
+\item Gain experience tracing I/O behaviour in UNIX
+\item Build intuitions about the probe effect
+\end{itemize}
+
+\noindent
+You will do this by using DTrace to analyse the behaviour of a potted,
+kernel-intensive block-I/O benchmark.
+
+%\textit{NOTE: We require a small disk-centered I/O benchmark that allows the
+%  I/O block size to be configured, in both static vs dynamic forms, that can
+%  work on both a file and a raw partition.  DTrace must be able to track both
+%  static and FBT probes.  We should come up with a list of the probe types of
+%  interest and make sure we teach a bit about them in lecture.  We should
+%  also ensure we teach about the relevant DTrace features -- e.g., execname,
+%  various stats aggregation features, etc.}
+
+\section*{Background: POSIX I/O system calls}
+
+POSIX defines a number of synchronous I/O APIs, including the
+\texttt{read()} and \texttt{write()} system calls, which accept a file
+descriptor to a file or other storage object, a pointer to a buffer to read to
+or write from, and a buffer length as arguments.
+Although they are synchronous calls, some underlying aspects of I/O are
+frequently deferred; for example, \texttt{write()} will store changes in the
+buffer cache, but they may not make it to disk for some time unless a call is
+made to \texttt{fsync()} to force a writeback.
+
+You may wish to read the FreeBSD \texttt{read(2)}, \texttt{write(2)}, and
+\texttt{fsync(2)} system-call manual pages to learn more about the calls
+before proceeding with this lab.
+You can do this using the \texttt{man} command; you may need to specify the
+\textit{manual section} to ensure that you get API documentation rather than
+program documentation; for example, \texttt{man 2 write} for the system call
+to ensure that you don't get the \texttt{write(1)} program man page.
+
+\section*{The benchmark}
+
+Our I/O benchmark is straightforward: it performs a series of \texttt{read()}
+or \texttt{write()} I/O system calls in a loop using configurable buffer and
+total I/O sizes.
+Optionally, an \texttt{fsync()} system call be issued at the end of the I/O
+loop to ensure that buffered data is written to disk.
+The benchmark samples the time before and after the I/O loop, optionally
+displaying an average bandwidth.
+The lab bundle will build two versions of the benchmark: \texttt{io-static}
+and \texttt{io-dynamic}.
+The former is statically linked (i.e., without use of the run-time linker or
+dynamic libraries), whereas the latter is dynamically linked.
+
+\subsection*{Compiling the benchmark}
+
+The laboratory I/O benchmark (\texttt{io.tgz}) has been preinstalled onto the
+BeagleBone Black (BBB) SD card image. However, you will need to untar it and
+build it before you can begin work.  Once you have configured the BBB so that
+you can log in (see \textit{L41: Lab Setup}), untar and build the bundle
+\footnote{Commands executed as root are indicated by \texttt{\# command}.
+Commands executed with user privilege are indicated by \texttt{\$ command}.}:
+
+\noindent
+Logged in as \texttt{root}, 
+\begin{verbatim}
+# cd /data
+# tar -xzf io.tgz
+# cd io
+# make
+# cd ..
+\end{verbatim}
+
+\subsection*{Running the benchmark}
+
+Once built, you can run the benchmark binaries as follows, with command-line
+arguments specifying various benchmark parameters:
+
+\begin{verbatim}
+# io/io-static
+\end{verbatim}
+
+\noindent
+or:
+
+\begin{verbatim}
+# io/io-dynamic
+\end{verbatim}
+
+The benchmark must be run in one of three operational modes: \textit{create},
+\textit{read}, or \textit{write}, specified by flags.
+In addition, the target file must be specified.
+If you run the \texttt{io-static} or \texttt{io-dynamic} benchmark without
+arguments, a small usage statement will be printed, which will also identify
+the default buffer and total I/O sizes configured for the benchmark.
+
+In your experiments, you will need to be careful to hold most variables
+constant in order to isolate the effects of specific variables; for example,
+you may wish to hold the total I/O size constant as you vary the buffer size.
+You may wish to experiment initially using \url{/dev/zero} -- the kernel's
+special device node providing an unlimited source of zeros, but will also want
+to run the benchmark against a file in the filesystem.
+
+\subsection*{Required operation flags}
+
+Specify the mode in which the benchmark should operate:
+
+\begin{description}
+\item[-c] Create the specified file using the default (or requested) total
+  I/O size.
+
+\item[-r] Benchmark \texttt{read()} of the target file, which must already
+  have been created.
+
+\item[-w] Benchmark \texttt{write()} of the target file, which must already
+  have been created.
+\end{description}
+
+\subsection*{Optional I/O flags}
+
+\begin{description}
+\item[-b \textit{buffersize}] Specify an alternative buffer size in bytes.
+  The total I/O size must be a multiple of buffer size.
+
+\item[-t \textit{totalsize}] Specify an alternative total I/O size in bytes.
+  The total I/O size must be a multiple of buffer size.
+
+\item[-B] \textit{Bare mode} disables the normal preparatory work done by the
+  benchmark, such as flushing outstanding disk writes and sleeping for one
+  second.
+  This mode is preferred when performing whole-program benchmarking.
+
+\item[-d] \textit{Direct I/O mode} disables use of the buffer cache by the
+  benchmark by specifying the \texttt{O\_DIRECT} flag to the \texttt{open()}
+  system call on the target file.
+  When switching from buffered mode, the first measurement using \texttt{-d}
+  should be discarded, as some cached data may still be used.
+
+\item[-s] \textit{Synchronous mode} causes the benchmark to call
+  \texttt{fsync()} after writing the file to cause all buffered writes to
+  complete before the benchmark terminates -- and in particular before the
+  final timestamp is taken.
+\end{description}
+
+\subsection*{Terminal output flags}
+
+\noindent
+The following arguments control terminal output from the benchmark; remember
+that output can substantially change the performance of the system under test,
+and so you should ensure that output is either entirely suppressed during
+tracing and benchmarking, or that tracing and benchmarking only occurs during
+a period of program execution unaffected by terminal I/O:
+
+\begin{description}
+\item[-q] \textit{Quiet mode} suppress all terminal output from the benchmark,
+  which is preferred when performing whole-program benchmarking.
+
+\item[-v] \textit{Verbose mode} causes the benchmark to print additional
+  information, such as the time measurement, buffer size, and total I/O size.
+\end{description}
+
+\subsection*{Example benchmark commands}
+
+This command creates a default-sized data file in the \url{/data} filesystem:
+
+\begin{verbatim}
+# io/io-static -c iofile
+\end{verbatim}
+
+\noindent
+This command runs a simple \texttt{read()} benchmark on the data file,
+printing additional information about the benchmark run:
+
+\begin{verbatim}
+# io/io-static -v -r iofile
+\end{verbatim}
+
+\noindent
+This command runs a simple \textit{write()} benchmark on the data file,
+printing additional information about the benchmark run:
+
+\begin{verbatim}
+# io/io-static -v -w iofile
+\end{verbatim}
+
+\noindent
+If performing whole-program analysis using DTrace, be sure to suppress output
+and run the benchmark in bare mode:
+
+\begin{verbatim}
+# io/io-static -B -q -r iofile
+\end{verbatim}
+
+\noindent
+The following command disables use of the buffer cache when running a read
+benchmark; be sure to discard the output of the first run of this command:
+
+\begin{verbatim}
+# io/io-static -d -r iofile
+\end{verbatim}
+
+\noindent
+To better understand kernel behaviour, you may also wish to run the benchmark
+against \url{/dev/zero}, a pseudodevice that returns all zeroes, and discards
+all writes:
+
+\begin{verbatim}
+# io/io-static -r /dev/zero
+\end{verbatim}
+
+\noindent
+To get a high-level summary execution time, including a breakdown of total
+wall-clock time, time in userspace, and `system time', use the UNIX
+\texttt{time} command:
+
+\begin{verbatim}
+# /usr/bin/time -p io/io-static -r -B -d -q iofile
+real 1.31
+user 0.00
+sys 0.31
+\end{verbatim}
+
+\noindent
+However, it may be desirable to use DTrace to collect more granular timestamps
+by instrumenting return from \texttt{execve()} and entry of \texttt{exit()}
+for the program under test.
+
+This run of \texttt{io-static}, reading the data file \url{/data/iofile},
+bypassing the buffer cache, and running in bare mode (i.e., without quiescing
+prior to the benchmark) took 1.31 seconds of wall-clock time to complete.
+Of this, (roughly) 0.00 seconds were spent in userspace, and (roughly) 0.31
+seconds were spent in the kernel on behalf of the process.
+From this output, it is unclear where the remaining 1.00 seconds were spent,
+but presumably a substantial fraction was spent blocked on (slow) SD Card I/O.
+Time may also have been spent running other processes -- and lower-precision
+time measurement, such as provided by \texttt{time}, may suffer from
+non-trivial rounding error.
+
+\section*{Objects on which to run the benchmark}
+
+You may wish to point the benchmark at one of two objects:
+
+\begin{description}
+\item[\url{/dev/zero}] The zero device: an infinite source of zeroes, and also
+  an infinite sink for any data you write to it.
+
+\item[\url{/data/iofile}] A writable file in a journalled UFS filesystem on
+  the SD card.
+  You will need to create the file using \texttt{-c} before performing
+  \texttt{read()} or \texttt{write()} benchmarks.
+\end{description}
+
+\section*{Jupyter}
+
+\begin{aquote}{\url{jupyter.org}}
+The Jupyter Notebook is a web application that allows you to create and share
+documents that contain live code, equations, visualisations and explanatory
+text. Uses include: data cleaning and transformation, numerical simulation,
+statistical modelling, machine learning and much more.
+\end{aquote}
+
+The L41 laboratory work requires students to bring together a diverse
+range of skills and knowledge: from shell commands, scripting languages and
+DTrace to knowledge of microarchitectural features and statistical analysis. The
+course's aim is to focus on the intrinsic complexity of the subject matter and
+not the \textit{extrinsic} complexity resulting from integrating disparate
+tools and platforms. Jupyter Notebooks support this goal by providing a unified
+environment for:
+
+\begin{itemize}
+\item Executing benchmarks.
+\item Measuring the performance of these benchmarks with DTrace.
+\item Post-processing performance measurements.
+\item Plotting performance measurements.
+\item Performing statistical analysis on performance measurements. 
+\end{itemize}
+
+
+Further information about the Jupyter Notebook environment can be found at the
+project's website: \url{jupyter.org}.
+
+\subsection*{Template}
+
+The BeagleBone Black comes preinstalled with a template Jupyter Notebook
+\texttt{l41\_lab1\_template.ipnb}. This template is designed to give working
+examples of all the features necessary to complete the first laboratory:
+including measuring the performance of the benchmarks using DTrace, producing
+simple graphs with \texttt{matplotlib} and performing basic statistics on
+performance measurements using \texttt{pandas}. 
+
+Details of working with the Jupyter Notebook template are given in the
+L41: Setup guide.
+
+\section*{Notes on using DTrace}
+
+You will want to use DTrace in two ways during this lab:
+
+\begin{itemize}
+\item To analyse just the I/O loop itself; or
+\item To analyse whole-program execution including setup, run-time linking,
+  etc.
+\end{itemize}
+
+In the former case, it is useful to know that the system call
+\texttt{clock\_gettime} is both run immediately before, and immediately after,
+the I/O loop.
+You may wish to bracket tracing between a return probe for the former, and an
+entry probe for the latter.
+For example, you might wish to include the following in your DTrace scripts:
+
+\begin{verbatim}
+syscall::clock_gettime:return
+/execname == "io-static" && !self->in_benchmark/
+{
+    self->in_benchmark = 1;
+}
+
+syscall::clock_gettime:entry
+/execname == "io-static" && self->in_benchmark/
+{
+    self->in_benchmark = 0;
+}
+
+END
+{
+    /* You might print summary statistics here. */
+    exit(0);
+}
+\end{verbatim}
+
+\noindent
+Other DTrace predicates can then refer to \texttt{self->in\_benchmark} to
+determine whether the probe is occurring during the I/O loop.
+The benchmark is careful to set up the runtime environment suitably before
+performing its first clock read, and to perform terminal output only after the
+second clock read, so it is fine to leave benchmark terminal output enabled.
+
+In the latter case, you will wish to configure the benchmark for whole-program
+analysis by disabling all output (\texttt{-q}) and enabling bare mode
+(\texttt{-B}).
+In this case, you will simply want to match the executable name for system
+calls or traps using \texttt{/execname == "io-static"/} (or
+\texttt{io-dynamic} as required).
+
+%\section*{Notes on using \texttt{ministat}}
+
+%While more sophisticated statistics and graphing packages such as \textbf{R}
+%may be appropriate for preparing your lab report, they can be rather
+%heavyweight during casual performance investigation.
+%You may wish to use the command-line \texttt{ministat} tool to analyse simple
+%distributions and perform statistical tests.
+%\texttt{ministat} accepts file arguments consisting of a list of numeric
+%values, one per line, and generates text output to the terminal.
+%Different data sets passed via multiple file arguments will be compared using
+%Student's \textit{t}-test.
+
+\section*{Notes on benchmark}
+
+This benchmark calculates average I/O rate for a particular run.
+Be sure to run the benchmark more than once (ideally, perhaps a dozen times),
+and discard the first output which may otherwise be affected by prior
+benchmark runs (e.g., if data is left in the buffer cache and the benchmark is
+not yet in the steady state).
+Do be sure that terminal I/O from the benchmark is not included in tracing or
+time measurements.
+
+\section*{Exploratory questions}
+
+These questions are intended to help you understand the behaviour of the I/O
+benchmark, and may provide supporting evidence for your experimental
+questions.
+However, they are just suggestions -- feel free to approach the problem
+differently!
+
+\begin{enumerate}
+  \item Baseline benchmark performance analysis:
+  \begin{itemize}
+    \item How do \texttt{read()} and \texttt{write()} performance compare?
+    \item Describe the performance effect of using the buffer cache?
+      Be sure to consider the effects of both \texttt{-d} and \texttt{-s}.
+    \item What proportion of benchmark time is spent in userspace vs. kernel?
+    \item How many times are different system calls called during the I/O
+      loop?
+    \item How much time is spent, cumulatively, in each system call by type
+      during the I/O loop?
+    \item What is the role of traps in execution of the I/O loop?
+%    \item How does work performed in just the I/O loop compare with
+%      whole-program behaviour?
+  \end{itemize}
+  \item Probe effect and measurement decisions
+  \begin{itemize}
+    \item How does performance change if you insert system-call or trap probes
+      in the I/O loop?
+    \item What sources of variance may be affecting benchmark performance,
+      and how can we measure them?
+  \end{itemize}
+\end{enumerate}
+
+\section*{Experimental questions}
+
+Your lab report will compare several configurations of the benchmark,
+exploring (and explaining) performance differences between them.
+Do ensure that your experimental setup suitably quiesces other activity on the
+system, and also use a suitable number of benchmark runs; you may wish to
+consult the \textit{FreeBSD Benchmarking Advice} wiki page linked to from the
+module's reading list for other thoughts on configuring the benchmark setup.
+% NB: No longer assigned for lab 1.
+%The research reading by Ellard and Seltzer (2003) may also offer insight into
+%benchmark considerations.
+The following questions are with respect to the benchmark \textbf{reading a
+file through the buffer cache}:
+
+\begin{itemize}
+  \item Holding the total I/O size constant (16MB), how does varying I/O
+    buffer size affect IO-loop performance?
+  \item Holding the buffer size constant (16K) and varying total I/O size, how
+     does static vs. dynamic linking affect whole-program performance?
+%    Measure whole-program execution time using a DTrace script that captures
+%    timestamps on return from \texttt{execve()} and entry to \texttt{exit()}
+%    for \texttt{io-static} and \texttt{io-dynamic}.
+  \item At what file-size threshold does the performance difference between
+    static and dynamic linking fall below 5\%?  At what file-size threshold
+    does the performance difference fall below 1\%?
+\end{itemize}
+
+\noindent
+For the purposes of performance graphs, plot measured performance (the
+dependent variable, or Y axis) is with respect to I/O bandwidth rather than
+literal execution time.
+This will make it easier to analyse relative I/O efficiency (per unit of data)
+as file and buffer sizes vary.
+
+\end{document}
