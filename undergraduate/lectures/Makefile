@@ -26,7 +26,7 @@ lecture1-intro-slides.pdf: ${LECTURE1FIGS}
 	latexmk -pdf $<
 
 clean:
-	rm -f *.aux *.log *.nav *.out *.snm
+	rm -f *.aux *.log *.nav *.out *.snm *.toc *.fls *.fdb_latexmk
 
 realclean:
 	rm -f *.aux *.log *.nav *.out *.snm ${SLIDES}
